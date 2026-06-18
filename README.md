@@ -9,6 +9,14 @@ cp .env.example .env
 docker compose up --build
 ```
 
+Or use the Makefile shortcuts:
+
+```sh
+make init
+make build
+make up
+```
+
 The app binds to `0.0.0.0:3444` on the Raspberry Pi, so it will be available at `http://<raspberry-pi-ip>:3444`.
 
 The compose file also starts a `mysql:9` database container and stores its data in the `mysql-data` Docker volume. With the example values, the app receives this connection string:
@@ -27,3 +35,22 @@ docker compose up --build -d
 ```
 
 Set the MySQL passwords before the first database start. If the `mysql-data` volume already exists, MySQL keeps the existing users and passwords.
+
+## Shortcuts
+
+Common Raspberry Pi commands:
+
+```sh
+make build
+make restart
+make logs
+make mysql
+make migration
+make migrate
+```
+
+Run arbitrary Symfony console commands with `CMD`:
+
+```sh
+make console CMD='about'
+```
