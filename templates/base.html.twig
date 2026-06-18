@@ -6,6 +6,7 @@
         <title>{% block title %}Sym Notes{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><rect width=%22128%22 height=%22128%22 rx=%2224%22 fill=%22%231f3a5f%22/><path d=%22M34 35h60v10H34zm0 24h60v10H34zm0 24h38v10H34z%22 fill=%22%23f8f3e8%22/></svg>">
         {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
         {% endblock %}
 
         {% block javascripts %}
