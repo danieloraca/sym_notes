@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Notes - Sym Notes{% endblock %}
+
+{% block body %}
+    <main class="page-shell">
+        <section class="hero-panel" aria-labelledby="page-title">
+            <div>
+                <p class="eyebrow">Personal notes</p>
+                <h1 id="page-title">Capture the useful stuff.</h1>
+                <p class="lede">A quiet place for notes, references, and the small thoughts that turn into real work.</p>
+            </div>
+            <div class="hero-actions" aria-label="Note actions">
+                <button class="button button-primary" type="button">New Note</button>
+                <button class="button button-secondary" type="button">Import</button>
+            </div>
+        </section>
+
+        <section class="workspace" aria-label="Notes workspace">
+            <aside class="sidebar" aria-label="Note filters">
+                <div class="section-label">Views</div>
+                <a class="filter-link is-active" href="{{ path('app_home') }}">
+                    <span>All notes</span>
+                    <strong>0</strong>
+                </a>
+                <a class="filter-link" href="{{ path('app_home') }}">
+                    <span>Pinned</span>
+                    <strong>0</strong>
+                </a>
+                <a class="filter-link" href="{{ path('app_home') }}">
+                    <span>Drafts</span>
+                    <strong>0</strong>
+                </a>
+            </aside>
+
+            <section class="notes-panel" aria-label="Notes">
+                <div class="toolbar">
+                    <label class="search-field">
+                        <span class="visually-hidden">Search notes</span>
+                        <input type="search" name="q" placeholder="Search notes">
+                    </label>
+                    <button class="button button-secondary" type="button">Sort</button>
+                </div>
+
+                {% if notes is empty %}
+                    <div class="empty-state">
+                        <p class="eyebrow">No notes yet</p>
+                        <h2>Your first table-backed screen can start here.</h2>
+                        <p>Create a Doctrine entity for notes next, then this panel can list rows from MySQL.</p>
+                        <button class="button button-primary" type="button">Create Note</button>
+                    </div>
+                {% else %}
+                    <div class="note-list">
+                        {% for note in notes %}
+                            <article class="note-card">
+                                <h2>{{ note.title }}</h2>
+                                <p>{{ note.summary }}</p>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+        </section>
+    </main>
+{% endblock %}
