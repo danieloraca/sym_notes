@@ -45,6 +45,7 @@ make build
 make restart
 make logs
 make mysql
+make entity
 make migration
 make migrate
 ```
@@ -54,3 +55,5 @@ Run arbitrary Symfony console commands with `CMD`:
 ```sh
 make console CMD='about'
 ```
+
+Generator commands use a separate `tools` container with dev dependencies, so the running app image can stay production-only.

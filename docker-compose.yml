@@ -2,6 +2,7 @@ services:
   app:
     build:
       context: .
+      target: prod
     environment:
       APP_ENV: prod
       APP_DEBUG: "0"
@@ -15,6 +16,26 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+
+  tools:
+    build:
+      context: .
+      target: tools
+    profiles:
+      - tools
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: "1"
+      APP_SECRET: dev-tools
+      APP_SHARE_DIR: var/share
+      DATABASE_URL: "mysql://${MYSQL_USER:-sym_notes}:${MYSQL_PASSWORD:-sym_notes}@db:3306/${MYSQL_DATABASE:-sym_notes}?charset=utf8mb4&serverVersion=9.7"
+      DEFAULT_URI: http://localhost:3444
+    volumes:
+      - .:/app
+      - tools-vendor:/app/vendor
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:9
@@ -35,3 +56,4 @@ services:
 
 volumes:
   mysql-data:
+  tools-vendor:
