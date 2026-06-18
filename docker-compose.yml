@@ -7,7 +7,31 @@ services:
       APP_DEBUG: "0"
       APP_SECRET: change-me-on-the-pi
       APP_SHARE_DIR: var/share
+      DATABASE_URL: "mysql://${MYSQL_USER:-sym_notes}:${MYSQL_PASSWORD:-sym_notes}@db:3306/${MYSQL_DATABASE:-sym_notes}?charset=utf8mb4"
       DEFAULT_URI: http://localhost:3444
     ports:
       - "0.0.0.0:3444:8000"
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
+
+  db:
+    image: mysql:9
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sym_notes}
+      MYSQL_USER: ${MYSQL_USER:-sym_notes}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sym_notes}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-sym_notes_root}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
