@@ -29,6 +29,8 @@ class ComposerStaticInite8d3a95da1ed2c87bca868e4168fd74a
         ),
         'S' =>
         array (
+            'Symfony\\UX\\Turbo\\' => 17,
+            'Symfony\\UX\\StimulusBundle\\' => 26,
             'Symfony\\Runtime\\Symfony\\Component\\' => 34,
             'Symfony\\Polyfill\\Php85\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
@@ -112,6 +114,14 @@ class ComposerStaticInite8d3a95da1ed2c87bca868e4168fd74a
         'Twig\\' =>
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
+        ),
+        'Symfony\\UX\\Turbo\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/ux-turbo/src',
+        ),
+        'Symfony\\UX\\StimulusBundle\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/stimulus-bundle/src',
         ),
         'Symfony\\Runtime\\Symfony\\Component\\' =>
         array (
