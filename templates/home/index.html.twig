@@ -5,14 +5,56 @@
 {% block body %}
     <main class="page-shell">
         <section class="hero-panel" aria-labelledby="page-title">
-            <div>
+            <div class="hero-copy">
                 <p class="eyebrow">Personal notes</p>
-                <h1 id="page-title">Capture the useful stuff.</h1>
-                <p class="lede">A quiet place for notes, references, and the small thoughts that turn into real work.</p>
+                <h1 id="page-title">Keep the signal close.</h1>
+                <p class="lede">A focused home for notes, references, tiny decisions, and the useful fragments that deserve to be found again.</p>
+                <div class="hero-actions" aria-label="Note actions">
+                    <button class="button button-primary" type="button">New Note</button>
+                    <button class="button button-secondary" type="button">Import</button>
+                </div>
             </div>
-            <div class="hero-actions" aria-label="Note actions">
-                <button class="button button-primary" type="button">New Note</button>
-                <button class="button button-secondary" type="button">Import</button>
+
+            <div class="note-stack" aria-hidden="true">
+                <div class="stack-card stack-card-back">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="stack-card stack-card-mid">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="stack-card stack-card-front">
+                    <div class="stack-header">
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <strong>Weekly shape</strong>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="stat-strip" aria-label="Notes summary">
+            <div>
+                <span class="stat-value">0</span>
+                <span class="stat-label">Notes</span>
+            </div>
+            <div>
+                <span class="stat-value">0</span>
+                <span class="stat-label">Pinned</span>
+            </div>
+            <div>
+                <span class="stat-value">0</span>
+                <span class="stat-label">Drafts</span>
+            </div>
+            <div>
+                <span class="stat-value">MySQL</span>
+                <span class="stat-label">Storage</span>
             </div>
         </section>
 
@@ -20,15 +62,24 @@
             <aside class="sidebar" aria-label="Note filters">
                 <div class="section-label">Views</div>
                 <a class="filter-link is-active" href="{{ path('app_home') }}">
-                    <span>All notes</span>
+                    <span><i class="filter-dot dot-teal" aria-hidden="true"></i>All notes</span>
                     <strong>0</strong>
                 </a>
                 <a class="filter-link" href="{{ path('app_home') }}">
-                    <span>Pinned</span>
+                    <span><i class="filter-dot dot-gold" aria-hidden="true"></i>Pinned</span>
                     <strong>0</strong>
                 </a>
                 <a class="filter-link" href="{{ path('app_home') }}">
-                    <span>Drafts</span>
+                    <span><i class="filter-dot dot-rose" aria-hidden="true"></i>Drafts</span>
+                    <strong>0</strong>
+                </a>
+                <div class="section-label sidebar-gap">Spaces</div>
+                <a class="filter-link" href="{{ path('app_home') }}">
+                    <span><i class="filter-dot dot-blue" aria-hidden="true"></i>Ideas</span>
+                    <strong>0</strong>
+                </a>
+                <a class="filter-link" href="{{ path('app_home') }}">
+                    <span><i class="filter-dot dot-green" aria-hidden="true"></i>Projects</span>
                     <strong>0</strong>
                 </a>
             </aside>
@@ -44,9 +95,14 @@
 
                 {% if notes is empty %}
                     <div class="empty-state">
-                        <p class="eyebrow">No notes yet</p>
-                        <h2>Your first table-backed screen can start here.</h2>
-                        <p>Create a Doctrine entity for notes next, then this panel can list rows from MySQL.</p>
+                        <div class="empty-visual" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <p class="eyebrow">Fresh notebook</p>
+                        <h2>Everything starts with one clean page.</h2>
+                        <p>A clean slate, ready for the first entry.</p>
                         <button class="button button-primary" type="button">Create Note</button>
                     </div>
                 {% else %}
