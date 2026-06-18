@@ -1,0 +1,23 @@
+FROM php:8.4-cli-alpine
+
+WORKDIR /app
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+ENV APP_ENV=prod \
+    APP_DEBUG=0 \
+    COMPOSER_ALLOW_SUPERUSER=1
+
+COPY composer.json composer.lock symfony.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --prefer-dist --no-scripts
+
+COPY . .
+RUN composer dump-autoload --classmap-authoritative --no-dev \
+    && mkdir -p var/cache var/log \
+    && chown -R www-data:www-data var
+
+USER www-data
+
+EXPOSE 8000
+
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public", "public/index.php"]

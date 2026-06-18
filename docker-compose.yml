@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: "0"
+      APP_SECRET: change-me-on-the-pi
+      APP_SHARE_DIR: var/share
+      DEFAULT_URI: http://localhost:3444
+    ports:
+      - "0.0.0.0:3444:8000"
+    restart: unless-stopped
