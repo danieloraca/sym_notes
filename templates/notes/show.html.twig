@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ note.title }} - Sym Notes{% endblock %}
+
+{% block body %}
+    <main class="page-shell">
+        <article class="reader-panel">
+            <div class="reader-header">
+                <div>
+                    <p class="eyebrow">{{ note.pinned ? 'Pinned note' : 'Note' }}</p>
+                    <h1>{{ note.title }}</h1>
+                    <p class="note-meta">Updated {{ note.updatedAt|date('M j, Y H:i') }}</p>
+                </div>
+                <div class="reader-actions">
+                    <a class="button button-secondary" href="{{ path('notes_index') }}">Back</a>
+                    <a class="button button-primary" href="{{ path('notes_edit', {id: note.id}) }}">Edit</a>
+                </div>
+            </div>
+
+            <div class="note-content">
+                {{ note.content|nl2br }}
+            </div>
+
+            <form class="delete-form" method="post" action="{{ path('notes_delete', {id: note.id}) }}" onsubmit="return confirm('Delete this note?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-note-' ~ note.id) }}">
+                <button class="button button-danger" type="submit">Delete Note</button>
+            </form>
+        </article>
+    </main>
+{% endblock %}

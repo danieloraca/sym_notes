@@ -23,14 +23,14 @@
     <body>
         <div class="app-frame">
             <header class="topbar" aria-label="Primary">
-                <a class="brand" href="{{ path('app_home') }}" aria-label="Sym Notes home">
+                <a class="brand" href="{{ path('notes_index') }}" aria-label="Sym Notes home">
                     <span class="brand-mark" aria-hidden="true">SN</span>
                     <span>Sym Notes</span>
                 </a>
                 <nav class="topnav" aria-label="Main navigation">
-                    <a href="{{ path('app_home') }}" aria-current="page">Notes</a>
-                    <a href="{{ path('app_home') }}">Archive</a>
-                    <a href="{{ path('app_home') }}">Settings</a>
+                    <a href="{{ path('notes_index') }}" aria-current="page">Notes</a>
+                    <a href="{{ path('notes_index') }}">Archive</a>
+                    <a href="{{ path('notes_index') }}">Settings</a>
                     {% if app.user %}
                         <a href="{{ path('app_logout') }}">Logout</a>
                     {% else %}
@@ -38,6 +38,14 @@
                     {% endif %}
                 </nav>
             </header>
+
+            {% for label, messages in app.flashes %}
+                <div class="flash-stack" role="status" aria-live="polite">
+                    {% for message in messages %}
+                        <p class="flash-message flash-{{ label }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
 
             {% block body %}{% endblock %}
         </div>

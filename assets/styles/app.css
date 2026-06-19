@@ -602,9 +602,166 @@ h1 {
     font-size: 1.1rem;
 }
 
+.note-card-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
 .note-card p {
     margin-bottom: 0;
     color: var(--muted);
+}
+
+.note-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.note-meta a {
+    color: var(--accent-strong);
+}
+
+.note-pill {
+    display: inline-flex;
+    min-height: 24px;
+    align-items: center;
+    border-radius: 999px;
+    padding: 3px 9px;
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    font-size: 0.72rem;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+
+.editor-panel,
+.reader-panel {
+    width: min(100%, 860px);
+    margin: 24px auto 56px;
+    padding: clamp(24px, 5vw, 44px);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: var(--shadow);
+}
+
+.editor-panel h1,
+.reader-panel h1 {
+    margin-bottom: 24px;
+    font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.note-form {
+    display: grid;
+    gap: 18px;
+}
+
+.note-form > div {
+    display: grid;
+    gap: 8px;
+}
+
+.note-form label {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.note-form input[type="text"],
+.note-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink);
+    background: var(--surface-subtle);
+}
+
+.note-form textarea {
+    min-height: 280px;
+    resize: vertical;
+}
+
+.note-form input:focus,
+.note-form textarea:focus {
+    border-color: var(--accent);
+    outline: 3px solid rgb(31 111 104 / 0.16);
+    background: var(--surface);
+}
+
+.note-form input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+.form-actions,
+.reader-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.reader-header {
+    display: flex;
+    gap: 24px;
+    align-items: start;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 22px;
+}
+
+.note-content {
+    padding: 28px 0;
+    color: #273245;
+    font-size: 1.04rem;
+    line-height: 1.8;
+}
+
+.delete-form {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+}
+
+.button-danger {
+    color: #ffffff;
+    background: #9f2638;
+    box-shadow: 0 12px 28px rgb(159 38 56 / 0.18);
+}
+
+.button-danger:hover {
+    background: #842031;
+}
+
+.flash-stack {
+    width: min(100% - 32px, 1180px);
+    margin: 0 auto 12px;
+}
+
+.flash-message {
+    margin: 0 0 8px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgb(255 255 255 / 0.9);
+    font-weight: 750;
+}
+
+.flash-success {
+    color: var(--accent-strong);
+    border-color: rgb(17 108 103 / 0.24);
+    background: var(--accent-soft);
 }
 
 .visually-hidden {
@@ -694,6 +851,10 @@ h1 {
     }
 
     .toolbar {
+        display: grid;
+    }
+
+    .reader-header {
         display: grid;
     }
 

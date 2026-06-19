@@ -2,6 +2,10 @@ controllers:
     resource: ../src/Controller/
     type: attribute
 
+notes_controllers:
+    resource: ../src/Notes/Presentation/Http/
+    type: attribute
+
 identity_controllers:
     resource: ../src/Identity/Presentation/Http/
     type: attribute

@@ -10,8 +10,7 @@
                 <h1 id="page-title">Keep the signal close.</h1>
                 <p class="lede">A focused home for notes, references, tiny decisions, and the useful fragments that deserve to be found again.</p>
                 <div class="hero-actions" aria-label="Note actions">
-                    <button class="button button-primary" type="button">New Note</button>
-                    <button class="button button-secondary" type="button">Import</button>
+                    <a class="button button-primary" href="{{ path('notes_new') }}">New Note</a>
                 </div>
             </div>
 
@@ -41,15 +40,15 @@
 
         <section class="stat-strip" aria-label="Notes summary">
             <div>
-                <span class="stat-value">0</span>
+                <span class="stat-value">{{ stats.notes }}</span>
                 <span class="stat-label">Notes</span>
             </div>
             <div>
-                <span class="stat-value">0</span>
+                <span class="stat-value">{{ stats.pinned }}</span>
                 <span class="stat-label">Pinned</span>
             </div>
             <div>
-                <span class="stat-value">0</span>
+                <span class="stat-value">{{ stats.drafts }}</span>
                 <span class="stat-label">Drafts</span>
             </div>
             <div>
@@ -61,26 +60,17 @@
         <section class="workspace" aria-label="Notes workspace">
             <aside class="sidebar" aria-label="Note filters">
                 <div class="section-label">Views</div>
-                <a class="filter-link is-active" href="{{ path('app_home') }}">
+                <a class="filter-link is-active" href="{{ path('notes_index') }}">
                     <span><i class="filter-dot dot-teal" aria-hidden="true"></i>All notes</span>
-                    <strong>0</strong>
+                    <strong>{{ stats.notes }}</strong>
                 </a>
-                <a class="filter-link" href="{{ path('app_home') }}">
+                <a class="filter-link" href="{{ path('notes_index') }}">
                     <span><i class="filter-dot dot-gold" aria-hidden="true"></i>Pinned</span>
-                    <strong>0</strong>
+                    <strong>{{ stats.pinned }}</strong>
                 </a>
-                <a class="filter-link" href="{{ path('app_home') }}">
+                <a class="filter-link" href="{{ path('notes_index') }}">
                     <span><i class="filter-dot dot-rose" aria-hidden="true"></i>Drafts</span>
-                    <strong>0</strong>
-                </a>
-                <div class="section-label sidebar-gap">Spaces</div>
-                <a class="filter-link" href="{{ path('app_home') }}">
-                    <span><i class="filter-dot dot-blue" aria-hidden="true"></i>Ideas</span>
-                    <strong>0</strong>
-                </a>
-                <a class="filter-link" href="{{ path('app_home') }}">
-                    <span><i class="filter-dot dot-green" aria-hidden="true"></i>Projects</span>
-                    <strong>0</strong>
+                    <strong>{{ stats.drafts }}</strong>
                 </a>
             </aside>
 
@@ -90,7 +80,7 @@
                         <span class="visually-hidden">Search notes</span>
                         <input type="search" name="q" placeholder="Search notes">
                     </label>
-                    <button class="button button-secondary" type="button">Sort</button>
+                    <a class="button button-secondary" href="{{ path('notes_new') }}">New</a>
                 </div>
 
                 {% if notes is empty %}
@@ -103,14 +93,24 @@
                         <p class="eyebrow">Fresh notebook</p>
                         <h2>Everything starts with one clean page.</h2>
                         <p>A clean slate, ready for the first entry.</p>
-                        <button class="button button-primary" type="button">Create Note</button>
+                        <a class="button button-primary" href="{{ path('notes_new') }}">Create Note</a>
                     </div>
                 {% else %}
                     <div class="note-list">
                         {% for note in notes %}
                             <article class="note-card">
-                                <h2>{{ note.title }}</h2>
-                                <p>{{ note.summary }}</p>
+                                <div class="note-card-header">
+                                    <h2><a href="{{ path('notes_show', {id: note.id}) }}">{{ note.title }}</a></h2>
+                                    {% if note.pinned %}
+                                        <span class="note-pill">Pinned</span>
+                                    {% endif %}
+                                </div>
+                                {% set summary = note.content|striptags %}
+                                <p>{{ summary|slice(0, 180) }}{% if summary|length > 180 %}...{% endif %}</p>
+                                <div class="note-meta">
+                                    <span>Updated {{ note.updatedAt|date('M j, Y H:i') }}</span>
+                                    <a href="{{ path('notes_edit', {id: note.id}) }}">Edit</a>
+                                </div>
                             </article>
                         {% endfor %}
                     </div>

@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Note - Sym Notes{% endblock %}
+
+{% block body %}
+    <main class="page-shell">
+        <section class="editor-panel" aria-labelledby="note-form-title">
+            <p class="eyebrow">New note</p>
+            <h1 id="note-form-title">Capture a clean page.</h1>
+
+            {% include 'notes/_form.html.twig' with {
+                form: form,
+                button_label: 'Create Note',
+                cancel_path: path('notes_index')
+            } only %}
+        </section>
+    </main>
+{% endblock %}
