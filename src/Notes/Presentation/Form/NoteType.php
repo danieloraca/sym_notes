@@ -24,9 +24,10 @@ class NoteType extends AbstractType
             ])
             ->add('content', TextareaType::class, [
                 'label' => 'Content',
+                'help' => 'Markdown is supported. Use `inline code` or fenced blocks with ```.',
                 'attr' => [
                     'rows' => 14,
-                    'placeholder' => 'Write the note...',
+                    'placeholder' => "Write the note...\n\nUse `inline code` or:\n\n```sh\nmake migrate\n```",
                 ],
             ])
             ->add('isPinned', CheckboxType::class, [

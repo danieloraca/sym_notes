@@ -729,6 +729,88 @@ h1 {
     line-height: 1.8;
 }
 
+.note-content > *:first-child {
+    margin-top: 0;
+}
+
+.note-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.note-content h1,
+.note-content h2,
+.note-content h3 {
+    margin: 1.4em 0 0.5em;
+    line-height: 1.15;
+}
+
+.note-content h1 {
+    font-size: 2rem;
+}
+
+.note-content h2 {
+    font-size: 1.5rem;
+}
+
+.note-content h3 {
+    font-size: 1.2rem;
+}
+
+.note-content p,
+.note-content ul,
+.note-content ol,
+.note-content pre,
+.note-content blockquote {
+    margin: 0 0 1rem;
+}
+
+.note-content ul,
+.note-content ol {
+    padding-left: 1.4rem;
+}
+
+.note-content code {
+    border: 1px solid #d8dee8;
+    border-radius: 6px;
+    padding: 0.1rem 0.35rem;
+    color: #1d3a50;
+    background: #eef3f5;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.92em;
+}
+
+.note-content pre {
+    overflow-x: auto;
+    border: 1px solid #cad3df;
+    border-radius: 8px;
+    padding: 16px;
+    color: #eef6f8;
+    background: #182230;
+    line-height: 1.55;
+}
+
+.note-content pre code {
+    border: 0;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    font-size: 0.92rem;
+}
+
+.note-content blockquote {
+    border-left: 4px solid var(--accent);
+    margin-left: 0;
+    padding: 0.2rem 0 0.2rem 1rem;
+    color: var(--muted);
+}
+
+.note-content a {
+    color: var(--accent-strong);
+    font-weight: 750;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .delete-form {
     border-top: 1px solid var(--line);
     padding-top: 18px;
