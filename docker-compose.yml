@@ -6,6 +6,7 @@ services:
     environment:
       APP_ENV: prod
       APP_DEBUG: "0"
+      APP_RUNTIME_OPTIONS: '{"disable_dotenv":true}'
       APP_SECRET: change-me-on-the-pi
       APP_SHARE_DIR: var/share
       DATABASE_URL: "mysql://${MYSQL_USER:-sym_notes}:${MYSQL_PASSWORD:-sym_notes}@db:3306/${MYSQL_DATABASE:-sym_notes}?charset=utf8mb4&serverVersion=9.7"
@@ -26,6 +27,7 @@ services:
     environment:
       APP_ENV: dev
       APP_DEBUG: "1"
+      APP_RUNTIME_OPTIONS: '{"disable_dotenv":true}'
       APP_SECRET: dev-tools
       APP_SHARE_DIR: var/share
       DATABASE_URL: "mysql://${MYSQL_USER:-sym_notes}:${MYSQL_PASSWORD:-sym_notes}@db:3306/${MYSQL_DATABASE:-sym_notes}?charset=utf8mb4&serverVersion=9.7"
