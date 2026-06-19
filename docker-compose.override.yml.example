@@ -1,0 +1,17 @@
+# Copy this file to docker-compose.override.yml when you want to run the app
+# in Symfony dev mode with the Web Debug Toolbar / Profiler.
+#
+# Remove docker-compose.override.yml to go back to the production image target.
+
+services:
+  app:
+    build:
+      target: tools
+    command: php -S 0.0.0.0:8000 -t public public/router.php
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: "1"
+      APP_SECRET: dev-secret
+    volumes:
+      - .:/app
+      - tools-vendor:/app/vendor

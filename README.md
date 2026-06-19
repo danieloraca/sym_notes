@@ -57,3 +57,27 @@ make console CMD='about'
 ```
 
 Generator commands use a separate `tools` container with dev dependencies, so the running app image can stay production-only.
+
+## Dev Mode And Profiler
+
+Install the Symfony Profiler pack into the project:
+
+```sh
+docker compose run --rm tools composer require --dev symfony/profiler-pack
+```
+
+To run the main app in Symfony dev mode, copy the reference override into place:
+
+```sh
+cp docker-compose.override.yml.example docker-compose.override.yml
+sudo systemctl restart sym_notes.service
+```
+
+The app will then run with `APP_ENV=dev` and `APP_DEBUG=1`, so the Web Debug Toolbar can appear at the bottom of the page.
+
+To switch back to production mode:
+
+```sh
+rm docker-compose.override.yml
+sudo systemctl restart sym_notes.service
+```
