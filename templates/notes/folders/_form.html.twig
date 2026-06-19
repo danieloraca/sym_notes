@@ -1,0 +1,9 @@
+{{ form_start(form, {attr: {class: 'note-form'}}) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.sortPosition) }}
+
+    <div class="form-actions">
+        <button class="button button-primary" type="submit">{{ button_label|default('Save') }}</button>
+        <a class="button button-secondary" href="{{ cancel_path|default(path('notes_index')) }}">Cancel</a>
+    </div>
+{{ form_end(form) }}

@@ -9,7 +9,13 @@
                 <div>
                     <p class="eyebrow">{{ note.pinned ? 'Pinned note' : 'Note' }}</p>
                     <h1>{{ note.title }}</h1>
-                    <p class="note-meta">Updated {{ note.updatedAt|date('M j, Y H:i') }}</p>
+                    <p class="note-meta">
+                        {% if note.folder %}
+                            <a href="{{ path('notes_folder', {id: note.folder.id}) }}">{{ note.folder.name }}</a>
+                            <span>·</span>
+                        {% endif %}
+                        <span>Updated {{ note.updatedAt|date('M j, Y H:i') }}</span>
+                    </p>
                 </div>
                 <div class="reader-actions">
                     <a class="button button-secondary" href="{{ path('notes_index') }}">Back</a>

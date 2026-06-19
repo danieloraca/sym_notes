@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Folder - Sym Notes{% endblock %}
+
+{% block body %}
+    <main class="page-shell">
+        <section class="editor-panel" aria-labelledby="folder-form-title">
+            <p class="eyebrow">Edit folder</p>
+            <h1 id="folder-form-title">{{ folder.name }}</h1>
+
+            {% include 'notes/folders/_form.html.twig' with {
+                form: form,
+                button_label: 'Save Folder',
+                cancel_path: path('notes_folder', {id: folder.id})
+            } only %}
+
+            <form class="delete-form" method="post" action="{{ path('folders_delete', {id: folder.id}) }}" onsubmit="return confirm('Delete this folder? Notes inside it will move to Uncategorized.');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-folder-' ~ folder.id) }}">
+                <button class="button button-danger" type="submit">Delete Folder</button>
+            </form>
+        </section>
+    </main>
+{% endblock %}

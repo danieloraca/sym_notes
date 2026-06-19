@@ -679,6 +679,8 @@ h1 {
 }
 
 .note-form input[type="text"],
+.note-form input[type="number"],
+.note-form select,
 .note-form textarea {
     width: 100%;
     padding: 12px 14px;
@@ -688,12 +690,17 @@ h1 {
     background: var(--surface-subtle);
 }
 
+.note-form select {
+    min-height: 44px;
+}
+
 .note-form textarea {
     min-height: 280px;
     resize: vertical;
 }
 
 .note-form input:focus,
+.note-form select:focus,
 .note-form textarea:focus {
     border-color: var(--accent);
     outline: 3px solid rgb(31 111 104 / 0.16);
@@ -703,6 +710,20 @@ h1 {
 .note-form input[type="checkbox"] {
     width: 18px;
     height: 18px;
+}
+
+.note-form .help-text,
+.note-form .form-help {
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.note-form ul {
+    margin: 0;
+    padding-left: 1rem;
+    color: #8a3140;
+    font-weight: 700;
 }
 
 .form-actions,
@@ -844,6 +865,12 @@ h1 {
     color: var(--accent-strong);
     border-color: rgb(17 108 103 / 0.24);
     background: var(--accent-soft);
+}
+
+.flash-error {
+    color: #8a3140;
+    border-color: rgb(184 93 107 / 0.34);
+    background: rgb(184 93 107 / 0.1);
 }
 
 .visually-hidden {

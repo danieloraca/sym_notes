@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Folder - Sym Notes{% endblock %}
+
+{% block body %}
+    <main class="page-shell">
+        <section class="editor-panel" aria-labelledby="folder-form-title">
+            <p class="eyebrow">New folder</p>
+            <h1 id="folder-form-title">Group related notes.</h1>
+
+            {% include 'notes/folders/_form.html.twig' with {
+                form: form,
+                button_label: 'Create Folder',
+                cancel_path: path('notes_index')
+            } only %}
+        </section>
+    </main>
+{% endblock %}

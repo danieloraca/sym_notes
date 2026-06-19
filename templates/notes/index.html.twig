@@ -8,9 +8,16 @@
             <div class="hero-copy">
                 <p class="eyebrow">Personal notes</p>
                 <h1 id="page-title">Keep the signal close.</h1>
-                <p class="lede">A focused home for notes, references, tiny decisions, and the useful fragments that deserve to be found again.</p>
+                        <p class="lede">
+                            {% if current_folder %}
+                                Notes filed under {{ current_folder.name }}.
+                            {% else %}
+                                A focused home for notes, references, tiny decisions, and the useful fragments that deserve to be found again.
+                            {% endif %}
+                        </p>
                 <div class="hero-actions" aria-label="Note actions">
                     <a class="button button-primary" href="{{ path('notes_new') }}">New Note</a>
+                    <a class="button button-secondary" href="{{ path('folders_new') }}">New Folder</a>
                 </div>
             </div>
 
@@ -72,6 +79,21 @@
                     <span><i class="filter-dot dot-rose" aria-hidden="true"></i>Drafts</span>
                     <strong>{{ stats.drafts }}</strong>
                 </a>
+                <div class="section-label sidebar-gap">Folders</div>
+                <a class="filter-link {{ current_folder is null ? 'is-active' : '' }}" href="{{ path('notes_index') }}">
+                    <span><i class="filter-dot dot-blue" aria-hidden="true"></i>Uncategorized</span>
+                    <strong>{{ uncategorized_count }}</strong>
+                </a>
+                {% for folder in folders %}
+                    <a class="filter-link {{ current_folder and current_folder.id == folder.id ? 'is-active' : '' }}" href="{{ path('notes_folder', {id: folder.id}) }}">
+                        <span><i class="filter-dot dot-green" aria-hidden="true"></i>{{ folder.name }}</span>
+                        <strong>{{ folder_counts[folder.id]|default(0) }}</strong>
+                    </a>
+                {% endfor %}
+                <a class="filter-link" href="{{ path('folders_new') }}">
+                    <span><i class="filter-dot dot-gold" aria-hidden="true"></i>New folder</span>
+                    <strong>+</strong>
+                </a>
             </aside>
 
             <section class="notes-panel" aria-label="Notes">
@@ -80,6 +102,9 @@
                         <span class="visually-hidden">Search notes</span>
                         <input type="search" name="q" placeholder="Search notes">
                     </label>
+                    {% if current_folder %}
+                        <a class="button button-secondary" href="{{ path('folders_edit', {id: current_folder.id}) }}">Edit Folder</a>
+                    {% endif %}
                     <a class="button button-secondary" href="{{ path('notes_new') }}">New</a>
                 </div>
 
@@ -108,7 +133,12 @@
                                 {% set summary = note.content|striptags %}
                                 <p>{{ summary|slice(0, 180) }}{% if summary|length > 180 %}...{% endif %}</p>
                                 <div class="note-meta">
-                                    <span>Updated {{ note.updatedAt|date('M j, Y H:i') }}</span>
+                                    <span>
+                                        {% if note.folder %}
+                                            {{ note.folder.name }} ·
+                                        {% endif %}
+                                        Updated {{ note.updatedAt|date('M j, Y H:i') }}
+                                    </span>
                                     <a href="{{ path('notes_edit', {id: note.id}) }}">Edit</a>
                                 </div>
                             </article>

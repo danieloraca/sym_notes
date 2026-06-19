@@ -2,8 +2,10 @@
 
 namespace App\Notes\Presentation\Form;
 
+use App\Notes\Domain\Entity\Folder;
 use App\Notes\Domain\Entity\Note;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,6 +23,14 @@ class NoteType extends AbstractType
                     'maxlength' => 255,
                     'placeholder' => 'A useful title',
                 ],
+            ])
+            ->add('folder', EntityType::class, [
+                'class' => Folder::class,
+                'choices' => $options['folders'],
+                'choice_label' => 'name',
+                'label' => 'Folder',
+                'required' => false,
+                'placeholder' => 'Uncategorized',
             ])
             ->add('content', TextareaType::class, [
                 'label' => 'Content',
@@ -40,6 +50,9 @@ class NoteType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Note::class,
+            'folders' => [],
         ]);
+
+        $resolver->setAllowedTypes('folders', 'array');
     }
 }

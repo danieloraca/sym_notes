@@ -39,13 +39,13 @@
                 </nav>
             </header>
 
-            {% for label, messages in app.flashes %}
-                <div class="flash-stack" role="status" aria-live="polite">
+            <div class="flash-stack" role="status" aria-live="polite">
+                {% for label, messages in app.flashes %}
                     {% for message in messages %}
                         <p class="flash-message flash-{{ label }}">{{ message }}</p>
                     {% endfor %}
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
 
             {% block body %}{% endblock %}
         </div>
