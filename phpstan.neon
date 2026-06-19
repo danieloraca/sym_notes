@@ -1,0 +1,19 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    tmpDir: var/phpstan
+
+    parallel:
+        maximumNumberOfProcesses: 1
+
+    symfony:
+        containerXmlPath: null
+
+    doctrine:
+        objectManagerLoader: null

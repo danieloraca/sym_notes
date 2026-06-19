@@ -11,8 +11,6 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 
 /**
  * @extends ServiceEntityRepository<User>
- *
- * @implements PasswordUpgraderInterface<User>
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
