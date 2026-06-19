@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Notes\Infrastructure\Doctrine\Repository;
 
-use App\Entity\Note;
+use App\Notes\Domain\Entity\Note;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

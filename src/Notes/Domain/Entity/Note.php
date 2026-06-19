@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Notes\Domain\Entity;
 
-use App\Repository\NoteRepository;
+use App\Notes\Infrastructure\Doctrine\Repository\NoteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
