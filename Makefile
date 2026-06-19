@@ -7,7 +7,7 @@ TOOL_COMPOSER = docker compose run --rm tools composer
 
 .DEFAULT_GOAL := help
 
-.PHONY: help init build build-tools rebuild up down restart status logs app-logs db-logs shell tool-shell db-shell mysql composer tool-composer console tool-console entity migrate migration diff clear-cache
+.PHONY: help init build build-tools rebuild up down restart status logs app-logs db-logs shell tool-shell db-shell mysql composer tool-composer console tool-console test entity migrate migration diff clear-cache
 
 help:
 	@printf "Sym Notes shortcuts\n\n"
@@ -28,7 +28,8 @@ help:
 	@printf "  make mysql         Connect to MySQL as MYSQL_USER\n"
 	@printf "  make console CMD='about'      Run Symfony console\n"
 	@printf "  make tool-console CMD='about' Run Symfony console with dev tools\n"
-	@printf "  make composer CMD='install'   Run Composer in the app container\n\n"
+	@printf "  make composer CMD='install'   Run Composer in the app container\n"
+	@printf "  make test                     Run PHPUnit in the tools container\n\n"
 	@printf "Doctrine:\n"
 	@printf "  make entity        Generate or update the Note entity\n"
 	@printf "  make migration     Generate a migration\n"
@@ -92,6 +93,9 @@ console:
 
 tool-console:
 	$(TOOL_CONSOLE) $(CMD)
+
+test:
+	$(TOOL_COMPOSER) test
 
 entity:
 	$(TOOL_CONSOLE) make:entity Note

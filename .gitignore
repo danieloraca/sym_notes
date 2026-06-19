@@ -3,6 +3,7 @@
 /.env
 /.env.*
 !/.env.example
+!/.env.test
 /.env.local
 /.env.local.php
 /.env.*.local
@@ -17,3 +18,8 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
