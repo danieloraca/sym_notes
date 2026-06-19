@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'd5870ede9fc0875a81719f3a0ad5bfe80c4275c7',
+        'reference' => 'f2b962fade93386b7359bb3b73f7d3720875670c',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'd5870ede9fc0875a81719f3a0ad5bfe80c4275c7',
+            'reference' => 'f2b962fade93386b7359bb3b73f7d3720875670c',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -681,6 +681,15 @@
             'install_path' => __DIR__ . '/../symfony/var-exporter',
             'aliases' => array(),
             'dev_requirement' => false,
+        ),
+        'symfony/web-profiler-bundle' => array(
+            'pretty_version' => 'v8.1.0',
+            'version' => '8.1.0.0',
+            'reference' => 'f8ccea08797a511b85a698b0da40e1b9e6461086',
+            'type' => 'symfony-bundle',
+            'install_path' => __DIR__ . '/../symfony/web-profiler-bundle',
+            'aliases' => array(),
+            'dev_requirement' => true,
         ),
         'symfony/yaml' => array(
             'pretty_version' => 'v8.1.0',

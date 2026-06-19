@@ -9,8 +9,8 @@ class ComposerStaticInite8d3a95da1ed2c87bca868e4168fd74a
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-        'deecf9d6b2672fb73429f9b28fdee35f' => __DIR__ . '/..' . '/symfony/polyfill-deepclone/bootstrap.php',
         '606a39d89246991a373564698c2d8383' => __DIR__ . '/..' . '/symfony/polyfill-php85/bootstrap.php',
+        'deecf9d6b2672fb73429f9b28fdee35f' => __DIR__ . '/..' . '/symfony/polyfill-deepclone/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
@@ -65,6 +65,7 @@ class ComposerStaticInite8d3a95da1ed2c87bca868e4168fd74a
             'Symfony\\Component\\Cache\\' => 24,
             'Symfony\\Component\\Asset\\' => 24,
             'Symfony\\Component\\AssetMapper\\' => 30,
+            'Symfony\\Bundle\\WebProfilerBundle\\' => 33,
             'Symfony\\Bundle\\TwigBundle\\' => 26,
             'Symfony\\Bundle\\MakerBundle\\' => 27,
             'Symfony\\Bundle\\FrameworkBundle\\' => 31,
@@ -258,6 +259,10 @@ class ComposerStaticInite8d3a95da1ed2c87bca868e4168fd74a
         'Symfony\\Component\\AssetMapper\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/asset-mapper',
+        ),
+        'Symfony\\Bundle\\WebProfilerBundle\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/web-profiler-bundle',
         ),
         'Symfony\\Bundle\\TwigBundle\\' =>
         array (
