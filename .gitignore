@@ -10,6 +10,7 @@
 /public/bundles/
 /var/
 /vendor/
+.idea/
 ###< symfony/framework-bundle ###
 
 ###> symfony/asset-mapper ###
