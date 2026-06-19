@@ -2,6 +2,7 @@
 
 namespace App\Notes\Domain\Entity;
 
+use App\Identity\Domain\Entity\User;
 use App\Notes\Infrastructure\Doctrine\Repository\NoteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,6 +34,10 @@ class Note
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $archivedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'notes')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?User $owner = null;
 
     public function __construct()
     {
@@ -114,6 +119,18 @@ class Note
     public function restore(): self
     {
         $this->archivedAt = null;
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): self
+    {
+        $this->owner = $owner;
 
         return $this;
     }

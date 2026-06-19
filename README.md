@@ -82,6 +82,21 @@ make console CMD='about'
 
 Generator commands use a separate `tools` container with dev dependencies, so the running app image can stay production-only.
 
+## Users
+
+The app uses Symfony Security with Doctrine-backed users. After deploying user-related migrations, create the first local user from the Pi:
+
+```sh
+make migrate
+make console CMD='app:user:create you@example.com change-this-password'
+```
+
+Then open the app and sign in at `/login`. Add `--admin` if you want the initial account to have `ROLE_ADMIN`:
+
+```sh
+make console CMD='app:user:create you@example.com change-this-password --admin'
+```
+
 ## Dev Mode And Profiler
 
 Install the Symfony Profiler pack into the project:

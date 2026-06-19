@@ -20,6 +20,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Notes/Domain/Entity'
                 prefix: 'App\Notes\Domain\Entity'
                 alias: Notes
+            Identity:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Identity/Domain/Entity'
+                prefix: 'App\Identity\Domain\Entity'
+                alias: Identity
 
 when@test:
     doctrine:

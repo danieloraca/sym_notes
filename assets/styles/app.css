@@ -522,6 +522,61 @@ h1 {
     line-height: 1.7;
 }
 
+.auth-panel {
+    width: min(100%, 520px);
+    margin: 48px auto;
+    padding: clamp(28px, 6vw, 44px);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: var(--shadow);
+}
+
+.auth-panel h1 {
+    margin-bottom: 24px;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+}
+
+.auth-form {
+    display: grid;
+    gap: 16px;
+}
+
+.auth-form label {
+    display: grid;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.auth-form input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink);
+    background: var(--surface-subtle);
+}
+
+.auth-form input:focus {
+    border-color: var(--accent);
+    outline: 3px solid rgb(31 111 104 / 0.16);
+    background: var(--surface);
+}
+
+.form-error {
+    padding: 12px 14px;
+    border: 1px solid rgb(184 93 107 / 0.34);
+    border-radius: 8px;
+    color: #8a3140;
+    background: rgb(184 93 107 / 0.1);
+    font-weight: 700;
+}
+
 .note-list {
     display: grid;
     gap: 12px;
