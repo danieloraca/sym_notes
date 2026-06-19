@@ -36,6 +36,30 @@ docker compose up --build -d
 
 Set the MySQL passwords before the first database start. If the `mysql-data` volume already exists, MySQL keeps the existing users and passwords.
 
+## MySQL From Sequel Ace
+
+The MySQL container is published only on the Raspberry Pi loopback address:
+
+```yaml
+127.0.0.1:3306:3306
+```
+
+Use Sequel Ace's `SSH` connection type from your Mac:
+
+```text
+MySQL Host: 127.0.0.1
+Username: sym_notes
+Password: value of MYSQL_PASSWORD
+Database: sym_notes
+Port: 3306
+
+SSH Host: <raspberry-pi-ip>
+SSH User: danutz
+SSH Port: 22
+```
+
+Do not include `http://` in database host fields. If you use the `TCP/IP` tab directly instead of SSH, MySQL would need to be published on the Pi LAN address, which is less safe.
+
 ## Shortcuts
 
 Common Raspberry Pi commands:
