@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notes\Domain\Entity;
 
 use App\Identity\Domain\Entity\User;

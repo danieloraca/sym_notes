@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notes\Infrastructure\Doctrine\Repository;
 
 use App\Identity\Domain\Entity\User;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notes\Presentation\Form;
 
 use App\Notes\Domain\Entity\Folder;
