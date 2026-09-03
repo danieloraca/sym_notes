@@ -11,6 +11,9 @@ services:
       APP_SHARE_DIR: var/share
       DATABASE_URL: "mysql://${MYSQL_USER:-sym_notes}:${MYSQL_PASSWORD:-sym_notes}@db:3306/${MYSQL_DATABASE:-sym_notes}?charset=utf8mb4&serverVersion=9.7"
       DEFAULT_URI: http://localhost:3444
+      MCP_TOKEN: "${MCP_TOKEN:-}"
+      MCP_USER_EMAIL: "${MCP_USER_EMAIL:-}"
+      MCP_ALLOWED_HOSTS: "${MCP_ALLOWED_HOSTS:-192.168.0.25,localhost,127.0.0.1}"
     ports:
       - "0.0.0.0:3444:8000"
     depends_on:
@@ -32,6 +35,9 @@ services:
       APP_SHARE_DIR: var/share
       DATABASE_URL: "mysql://${MYSQL_USER:-sym_notes}:${MYSQL_PASSWORD:-sym_notes}@db:3306/${MYSQL_DATABASE:-sym_notes}?charset=utf8mb4&serverVersion=9.7"
       DEFAULT_URI: http://localhost:3444
+      MCP_TOKEN: "${MCP_TOKEN:-}"
+      MCP_USER_EMAIL: "${MCP_USER_EMAIL:-}"
+      MCP_ALLOWED_HOSTS: "${MCP_ALLOWED_HOSTS:-192.168.0.25,localhost,127.0.0.1}"
     volumes:
       - .:/app
       - tools-vendor:/app/vendor

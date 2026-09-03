@@ -1,0 +1,16 @@
+mcp:
+    servers:
+        notes:
+            name: sym-notes
+            version: 1.0.0
+            description: Read and manage notes belonging to the authenticated Sym Notes user.
+            instructions: Only operate on the authenticated user's notes. Prefer archive over destructive deletion.
+            transports:
+                http: true
+                stdio: false
+            http:
+                path: /mcp
+                allowed_hosts: '%env(csv:MCP_ALLOWED_HOSTS)%'
+            registry:
+                tools:
+                    - 'App\Notes\Presentation\Mcp\'

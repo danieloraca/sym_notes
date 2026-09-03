@@ -82,6 +82,43 @@ make console CMD='about'
 
 Generator commands use a separate `tools` container with dev dependencies, so the running app image can stay production-only.
 
+## MCP Server
+
+The app exposes a Streamable HTTP MCP endpoint at:
+
+```text
+http://<raspberry-pi-ip>:3444/mcp
+```
+
+Set a token, the email of an existing Sym Notes user, and the hostnames or IP addresses clients use to reach the Pi in `.env`:
+
+```sh
+MCP_TOKEN="$(openssl rand -hex 32)"
+MCP_USER_EMAIL=you@example.com
+MCP_ALLOWED_HOSTS=192.168.0.25,localhost,127.0.0.1
+```
+
+Rebuild and restart the app after pulling the MCP changes:
+
+```sh
+make build
+make up
+```
+
+Configure an MCP client to use the endpoint with this HTTP header:
+
+```text
+Authorization: Bearer <value-of-MCP_TOKEN>
+```
+
+The MCP user must already exist. The server exposes owner-scoped tools for listing, searching, reading, creating, updating, moving, archiving, and restoring notes, plus listing folders. It intentionally does not expose permanent deletion.
+
+To inspect the registered tools inside the development container:
+
+```sh
+make tool-console CMD='debug:mcp --server=notes'
+```
+
 ## Users
 
 The app uses Symfony Security with Doctrine-backed users. After deploying user-related migrations, create the first local user from the Pi:

@@ -9,3 +9,7 @@ notes_controllers:
 identity_controllers:
     resource: ../src/Identity/Presentation/Http/
     type: attribute
+
+mcp:
+    resource: .
+    type: mcp
