@@ -110,7 +110,7 @@ final class NoteTools
     #[McpTool(
         name: 'notes_create',
         title: 'Create note',
-        description: 'Create a note for the authenticated user, optionally inside one of their folders.',
+        description: 'Save content as a new note in the user\'s Sym Notes (sym_notes) application. Use this for requests such as "save this conversation to sym_notes" or "add a note to Sym Notes". When the user names a destination folder, first call folders_list and pass the matching folder ID as folderId.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false),
     )]
     public function createNote(
@@ -258,7 +258,7 @@ final class NoteTools
     #[McpTool(
         name: 'folders_list',
         title: 'List folders',
-        description: 'List folders belonging to the authenticated user.',
+        description: 'List folders in the user\'s Sym Notes (sym_notes) application. Call this first to resolve a user-provided folder name before creating or moving a note.',
         annotations: new ToolAnnotations(readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]
     public function listFolders(): array
