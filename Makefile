@@ -7,17 +7,21 @@ TOOL_COMPOSER = docker compose run --rm tools composer
 
 .DEFAULT_GOAL := help
 
-.PHONY: help init build build-tools rebuild up down restart status logs app-logs db-logs shell tool-shell db-shell mysql composer tool-composer console tool-console test stan entity migrate migration diff clear-cache
+.PHONY: help init build build-tools rebuild deps deploy deploy-dev up down restart status logs app-logs db-logs shell tool-shell db-shell mysql composer tool-composer console tool-console test stan entity migrate migration diff clear-cache mcp-debug
 
 help:
 	@printf "Sym Notes shortcuts\n\n"
 	@printf "Setup and Docker:\n"
 	@printf "  make init          Create .env from .env.example if missing\n"
 	@printf "  make build         Build the app image\n"
+	@printf "  make build-tools   Build the development tools image\n"
 	@printf "  make rebuild       Rebuild the app image without cache\n"
+	@printf "  make deps          Install locked Composer dependencies into the shared dev volume\n"
 	@printf "  make up            Start Docker Compose services\n"
 	@printf "  make down          Stop Docker Compose services\n\n"
 	@printf "Systemd on the Pi:\n"
+	@printf "  make deploy        Build the production image and restart the service\n"
+	@printf "  make deploy-dev    Build tools, refresh dev dependencies, and restart the service\n"
 	@printf "  make restart       Restart %s\n" "$(SERVICE)"
 	@printf "  make status        Show %s status\n" "$(SERVICE)"
 	@printf "  make logs          Follow %s logs\n\n" "$(SERVICE)"
@@ -30,7 +34,8 @@ help:
 	@printf "  make tool-console CMD='about' Run Symfony console with dev tools\n"
 	@printf "  make composer CMD='install'   Run Composer in the app container\n"
 	@printf "  make test                     Run PHPUnit in the tools container\n"
-	@printf "  make stan                     Run PHPStan in the tools container\n\n"
+	@printf "  make stan                     Run PHPStan in the tools container\n"
+	@printf "  make mcp-debug                List registered MCP tools\n\n"
 	@printf "Doctrine:\n"
 	@printf "  make entity        Generate or update the Note entity\n"
 	@printf "  make migration     Generate a migration\n"
@@ -49,6 +54,13 @@ build-tools:
 
 rebuild:
 	docker compose build --no-cache $(APP)
+
+deps:
+	$(TOOL_COMPOSER) install --no-interaction
+
+deploy: build restart
+
+deploy-dev: build-tools deps restart
 
 up:
 	docker compose up -d
@@ -115,3 +127,6 @@ diff:
 
 clear-cache:
 	$(CONSOLE) cache:clear
+
+mcp-debug:
+	$(CONSOLE) debug:mcp --server=notes

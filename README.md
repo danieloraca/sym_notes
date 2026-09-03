@@ -98,12 +98,21 @@ MCP_USER_EMAIL=you@example.com
 MCP_ALLOWED_HOSTS=192.168.0.25,localhost,127.0.0.1
 ```
 
-Rebuild and restart the app after pulling the MCP changes:
+After pulling changes on the Pi, update the running service according to its Compose mode.
+
+For the normal production image (no `docker-compose.override.yml`), rebuild the app image and restart the systemd service:
 
 ```sh
-make build
-make up
+make deploy
 ```
+
+For development mode (`docker-compose.override.yml` present), the source tree is bind-mounted and `/app/vendor` is supplied by the `tools-vendor` Docker volume. Refresh both the tools image and that dependency volume before restarting:
+
+```sh
+make deploy-dev
+```
+
+A service restart by itself does not install dependencies. If Symfony reports that `Symfony\AI\McpBundle\McpBundle` is missing, run `make deploy-dev` in development mode or `make deploy` in production mode.
 
 Configure an MCP client to use the endpoint with this HTTP header:
 
@@ -116,7 +125,7 @@ The MCP user must already exist. The server exposes owner-scoped tools for listi
 To inspect the registered tools inside the development container:
 
 ```sh
-make tool-console CMD='debug:mcp --server=notes'
+make mcp-debug
 ```
 
 ## Users
@@ -146,10 +155,12 @@ To run the main app in Symfony dev mode, copy the reference override into place:
 
 ```sh
 cp docker-compose.override.yml.example docker-compose.override.yml
-sudo systemctl restart sym_notes.service
+make deploy-dev
 ```
 
 The app will then run with `APP_ENV=dev` and `APP_DEBUG=1`, so the Web Debug Toolbar can appear at the bottom of the page.
+
+After future pulls, use `make deploy-dev` so Composer changes are installed into the shared `tools-vendor` volume. Do not use `docker compose down -v` to refresh dependencies: it would also remove the `mysql-data` volume.
 
 To switch back to production mode:
 
