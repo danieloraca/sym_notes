@@ -26,8 +26,8 @@ class FolderType extends AbstractType
             ])
             ->add('parent', EntityType::class, [
                 'class' => Folder::class,
-                'choices' => $options['folders'],
-                'choice_label' => static fn (Folder $folder): string => $folder->getPath(),
+                'choices' => FolderChoiceTree::arrange($options['folders']),
+                'choice_label' => FolderChoiceTree::label(...),
                 'label' => 'Parent folder',
                 'help' => 'Leave empty to create a top-level folder.',
                 'required' => false,

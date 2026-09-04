@@ -28,8 +28,8 @@ class NoteType extends AbstractType
             ])
             ->add('folder', EntityType::class, [
                 'class' => Folder::class,
-                'choices' => $options['folders'],
-                'choice_label' => static fn (Folder $folder): string => $folder->getPath(),
+                'choices' => FolderChoiceTree::arrange($options['folders']),
+                'choice_label' => FolderChoiceTree::label(...),
                 'label' => 'Folder',
                 'required' => false,
                 'placeholder' => 'Uncategorized',
