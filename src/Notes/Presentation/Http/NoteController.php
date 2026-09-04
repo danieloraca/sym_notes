@@ -19,11 +19,15 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(name: 'notes_')]
 class NoteController extends AbstractController
 {
+    private const NOTES_PER_PAGE = 20;
+
     #[Route('/', name: 'index', methods: ['GET'])]
-    public function index(NoteRepository $notes, FolderRepository $folders): Response
+    public function index(Request $request, NoteRepository $notes, FolderRepository $folders): Response
     {
         $owner = $this->currentUser();
-        $activeNotes = $notes->findActiveForOwner($owner);
+        $totalNotes = $notes->countActiveForOwner($owner);
+        $pagination = $this->pagination($request, $totalNotes);
+        $activeNotes = $notes->findActiveForOwnerPage($owner, $pagination['page'], self::NOTES_PER_PAGE);
         $ownedFolders = $folders->findForOwner($owner);
 
         return $this->render('notes/index.html.twig', [
@@ -33,18 +37,22 @@ class NoteController extends AbstractController
             'current_folder' => null,
             'uncategorized_count' => $notes->countActiveForOwnerInFolder($owner, null),
             'stats' => [
-                'notes' => count($activeNotes),
+                'notes' => $totalNotes,
                 'pinned' => $notes->countPinnedForOwner($owner),
                 'drafts' => 0,
             ],
+            'pagination' => $pagination,
+            'pagination_route_params' => [],
         ]);
     }
 
     #[Route('/uncategorized', name: 'uncategorized', methods: ['GET'])]
-    public function uncategorized(NoteRepository $notes, FolderRepository $folders): Response
+    public function uncategorized(Request $request, NoteRepository $notes, FolderRepository $folders): Response
     {
         $owner = $this->currentUser();
-        $activeNotes = $notes->findActiveForOwnerInFolder($owner, null);
+        $totalNotes = $notes->countActiveForOwnerInFolder($owner, null);
+        $pagination = $this->pagination($request, $totalNotes);
+        $activeNotes = $notes->findActiveForOwnerInFolderPage($owner, null, $pagination['page'], self::NOTES_PER_PAGE);
         $ownedFolders = $folders->findForOwner($owner);
 
         return $this->render('notes/index.html.twig', [
@@ -52,25 +60,30 @@ class NoteController extends AbstractController
             'folders' => $ownedFolders,
             'folder_counts' => $this->folderCounts($ownedFolders, $notes, $owner),
             'current_folder' => null,
-            'uncategorized_count' => count($activeNotes),
+            'uncategorized_count' => $totalNotes,
             'stats' => [
                 'notes' => $notes->countActiveForOwner($owner),
                 'pinned' => $notes->countPinnedForOwner($owner),
                 'drafts' => 0,
             ],
+            'pagination' => $pagination,
+            'pagination_route_params' => [],
         ]);
     }
 
     #[Route('/folders/{id}', name: 'folder', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function folder(int $id, NoteRepository $notes, FolderRepository $folders): Response
+    public function folder(int $id, Request $request, NoteRepository $notes, FolderRepository $folders): Response
     {
         $owner = $this->currentUser();
         $folder = $this->findOwnedFolder($id, $folders);
-        $activeNotes = $notes->findActiveForOwnerInFolder($owner, $folder);
+        $totalNotes = $notes->countActiveForOwnerInFolder($owner, $folder);
+        $pagination = $this->pagination($request, $totalNotes);
+        $activeNotes = $notes->findActiveForOwnerInFolderPage($owner, $folder, $pagination['page'], self::NOTES_PER_PAGE);
+        $ownedFolders = $folders->findForOwner($owner);
 
         return $this->render('notes/index.html.twig', [
             'notes' => $activeNotes,
-            'folders' => $ownedFolders = $folders->findForOwner($owner),
+            'folders' => $ownedFolders,
             'folder_counts' => $this->folderCounts($ownedFolders, $notes, $owner),
             'current_folder' => $folder,
             'uncategorized_count' => $notes->countActiveForOwnerInFolder($owner, null),
@@ -79,6 +92,8 @@ class NoteController extends AbstractController
                 'pinned' => $notes->countPinnedForOwner($owner),
                 'drafts' => 0,
             ],
+            'pagination' => $pagination,
+            'pagination_route_params' => ['id' => $folder->getId()],
         ]);
     }
 
@@ -189,6 +204,24 @@ class NoteController extends AbstractController
         }
 
         return $counts;
+    }
+
+    /**
+     * @return array{page: int, per_page: int, total: int, total_pages: int, first_item: int, last_item: int}
+     */
+    private function pagination(Request $request, int $total): array
+    {
+        $totalPages = max(1, (int) ceil($total / self::NOTES_PER_PAGE));
+        $page = min($totalPages, max(1, $request->query->getInt('page', 1)));
+
+        return [
+            'page' => $page,
+            'per_page' => self::NOTES_PER_PAGE,
+            'total' => $total,
+            'total_pages' => $totalPages,
+            'first_item' => $total === 0 ? 0 : (($page - 1) * self::NOTES_PER_PAGE) + 1,
+            'last_item' => min($page * self::NOTES_PER_PAGE, $total),
+        ];
     }
 
     private function currentUser(): User

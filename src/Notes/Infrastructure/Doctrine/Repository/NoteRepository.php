@@ -31,6 +31,25 @@ class NoteRepository extends ServiceEntityRepository
             ->setParameter('owner', $owner)
             ->orderBy('note.isPinned', 'DESC')
             ->addOrderBy('note.updatedAt', 'DESC')
+            ->addOrderBy('note.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return list<Note>
+     */
+    public function findActiveForOwnerPage(User $owner, int $page, int $perPage): array
+    {
+        return $this->createQueryBuilder('note')
+            ->andWhere('note.owner = :owner')
+            ->andWhere('note.archivedAt IS NULL')
+            ->setParameter('owner', $owner)
+            ->orderBy('note.isPinned', 'DESC')
+            ->addOrderBy('note.updatedAt', 'DESC')
+            ->addOrderBy('note.id', 'DESC')
+            ->setFirstResult($this->pageOffset($page, $perPage))
+            ->setMaxResults(max(1, $perPage))
             ->getQuery()
             ->getResult();
     }
@@ -56,6 +75,35 @@ class NoteRepository extends ServiceEntityRepository
         return $queryBuilder
             ->orderBy('note.isPinned', 'DESC')
             ->addOrderBy('note.updatedAt', 'DESC')
+            ->addOrderBy('note.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return list<Note>
+     */
+    public function findActiveForOwnerInFolderPage(User $owner, ?Folder $folder, int $page, int $perPage): array
+    {
+        $queryBuilder = $this->createQueryBuilder('note')
+            ->andWhere('note.owner = :owner')
+            ->andWhere('note.archivedAt IS NULL')
+            ->setParameter('owner', $owner);
+
+        if ($folder) {
+            $queryBuilder
+                ->andWhere('note.folder = :folder')
+                ->setParameter('folder', $folder);
+        } else {
+            $queryBuilder->andWhere('note.folder IS NULL');
+        }
+
+        return $queryBuilder
+            ->orderBy('note.isPinned', 'DESC')
+            ->addOrderBy('note.updatedAt', 'DESC')
+            ->addOrderBy('note.id', 'DESC')
+            ->setFirstResult($this->pageOffset($page, $perPage))
+            ->setMaxResults(max(1, $perPage))
             ->getQuery()
             ->getResult();
     }
@@ -111,5 +159,10 @@ class NoteRepository extends ServiceEntityRepository
         }
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+    private function pageOffset(int $page, int $perPage): int
+    {
+        return (max(1, $page) - 1) * max(1, $perPage);
     }
 }
