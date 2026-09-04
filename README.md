@@ -120,7 +120,7 @@ Configure an MCP client to use the endpoint with this HTTP header:
 Authorization: Bearer <value-of-MCP_TOKEN>
 ```
 
-The MCP user must already exist. The server exposes owner-scoped tools for listing, searching, reading, creating, updating, moving, archiving, and restoring notes, plus listing and creating folders. Folder creation supports an optional owned parent folder and rejects duplicate names within the same parent. The server intentionally does not expose permanent deletion.
+The MCP user must already exist. The server exposes owner-scoped tools for listing, searching, reading, creating, updating, moving, archiving, and restoring notes, plus listing and creating folders. It also exposes `files_save` for saving text files under each authenticated user's private shared files directory; paths are relative, parent directories are created automatically, and overwriting requires an explicit flag. Folder creation supports an optional owned parent folder and rejects duplicate names within the same parent. The server intentionally does not expose permanent note deletion.
 
 To inspect the registered tools inside the development container:
 

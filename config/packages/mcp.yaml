@@ -3,18 +3,20 @@ mcp:
         notes:
             name: sym-notes
             version: 1.0.0
-            description: Save, read, and manage notes in the user's Sym Notes (sym_notes) application.
+            description: Save, read, and manage notes and private text files in the user's Sym Notes (sym_notes) application.
             instructions: >
                 This server is the user's Sym Notes application, also called sym_notes or
                 sym-notes. Whenever the user asks to save, add, write, read, search, or
                 manage something in Sym Notes, use these tools instead of the filesystem
-                or a browser; the user does not need to say "MCP". If a destination folder
+                or a browser; the user does not need to say "MCP". Use notes tools for
+                notes and files_save for text files. Files are private to the authenticated
+                user and must use a relative path inside the Sym Notes file area. If a destination folder
                 is named, call folders_list to resolve its ID. If it does not exist and the
                 user asked to create it or clearly requested saving into that new folder,
                 call folders_create. Then pass the folderId to notes_create or notes_move.
-                Never create a local file or directory for a Sym Notes request. Only
-                operate on the authenticated user's notes and prefer archiving over
-                destructive deletion.
+                Never create a local file or directory outside the Sym Notes file area for a
+                Sym Notes request. Only operate on the authenticated user's notes and files,
+                and prefer archiving over destructive deletion.
             transports:
                 http: true
                 stdio: false
