@@ -40,6 +40,27 @@ class NoteController extends AbstractController
         ]);
     }
 
+    #[Route('/uncategorized', name: 'uncategorized', methods: ['GET'])]
+    public function uncategorized(NoteRepository $notes, FolderRepository $folders): Response
+    {
+        $owner = $this->currentUser();
+        $activeNotes = $notes->findActiveForOwnerInFolder($owner, null);
+        $ownedFolders = $folders->findForOwner($owner);
+
+        return $this->render('notes/index.html.twig', [
+            'notes' => $activeNotes,
+            'folders' => $ownedFolders,
+            'folder_counts' => $this->folderCounts($ownedFolders, $notes, $owner),
+            'current_folder' => null,
+            'uncategorized_count' => count($activeNotes),
+            'stats' => [
+                'notes' => $notes->countActiveForOwner($owner),
+                'pinned' => $notes->countPinnedForOwner($owner),
+                'drafts' => 0,
+            ],
+        ]);
+    }
+
     #[Route('/folders/{id}', name: 'folder', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function folder(int $id, NoteRepository $notes, FolderRepository $folders): Response
     {

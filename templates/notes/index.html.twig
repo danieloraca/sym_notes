@@ -68,7 +68,7 @@
         <section class="workspace" aria-label="Notes workspace">
             <aside class="sidebar" aria-label="Note filters">
                 <div class="section-label">Views</div>
-                <a class="filter-link is-active" href="{{ path('notes_index') }}">
+                <a class="filter-link {{ app.request.attributes.get('_route') == 'notes_index' ? 'is-active' : '' }}" href="{{ path('notes_index') }}">
                     <span><i class="filter-dot dot-teal" aria-hidden="true"></i>All notes</span>
                     <strong>{{ stats.notes }}</strong>
                 </a>
@@ -81,7 +81,7 @@
                     <strong>{{ stats.drafts }}</strong>
                 </a>
                 <div class="section-label sidebar-gap">Folders</div>
-                <a class="filter-link {{ current_folder is null ? 'is-active' : '' }}" href="{{ path('notes_index') }}">
+                <a class="filter-link {{ app.request.attributes.get('_route') == 'notes_uncategorized' ? 'is-active' : '' }}" href="{{ path('notes_uncategorized') }}">
                     <span><i class="filter-dot dot-blue" aria-hidden="true"></i>Uncategorized</span>
                     <strong>{{ uncategorized_count }}</strong>
                 </a>
