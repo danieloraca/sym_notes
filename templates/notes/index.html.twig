@@ -85,7 +85,7 @@
                     <span><i class="filter-dot dot-blue" aria-hidden="true"></i>Uncategorized</span>
                     <strong>{{ uncategorized_count }}</strong>
                 </a>
-                <div class="folder-tree">
+                <div class="folder-tree" data-folder-tree>
                     {{ folder_tree.links(folders, null, current_folder, folder_counts) }}
                 </div>
                 <a class="filter-link" href="{{ path('folders_new') }}">

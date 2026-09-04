@@ -4,7 +4,7 @@
         {% if candidate_parent_id is same as(parent_id) %}
             {% set children = folders|filter(child => child.parent and child.parent.id == folder.id) %}
             {% if children is not empty %}
-                <details class="folder-branch" open>
+                <details class="folder-branch" data-folder-id="{{ folder.id }}" open>
                     <summary class="folder-branch__summary" style="--folder-indent: {{ depth * 18 }}px">
                         <span class="folder-branch__chevron" aria-hidden="true"></span>
                         {{ _self.link(folder, current_folder, folder_counts, depth, true) }}
