@@ -406,8 +406,62 @@ h1 {
     gap: 2px;
 }
 
+.folder-branch,
+.folder-branch__children {
+    display: grid;
+    gap: 2px;
+}
+
+.folder-branch__summary {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding-left: calc(4px + var(--folder-indent, 0px));
+    list-style: none;
+    cursor: pointer;
+}
+
+.folder-branch__summary::-webkit-details-marker {
+    display: none;
+}
+
+.folder-branch__summary::marker {
+    content: "";
+}
+
+.folder-branch__chevron {
+    display: grid;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 32px;
+    place-items: center;
+    color: var(--muted);
+}
+
+.folder-branch__chevron::before {
+    content: "›";
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1;
+    transform: rotate(90deg);
+    transition: transform 160ms ease;
+}
+
+.folder-branch:not([open]) .folder-branch__chevron::before {
+    transform: rotate(0deg);
+}
+
+.folder-branch__summary:hover .folder-branch__chevron {
+    color: var(--accent-strong);
+}
+
 .folder-link {
     padding-left: calc(12px + var(--folder-indent, 0px));
+}
+
+.folder-link--branch {
+    flex: 1;
+    padding-left: 4px;
 }
 
 .folder-link--nested .filter-dot {

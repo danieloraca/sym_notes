@@ -2,18 +2,34 @@
     {% for folder in folders %}
         {% set candidate_parent_id = folder.parent ? folder.parent.id : null %}
         {% if candidate_parent_id is same as(parent_id) %}
-            <a
-                class="filter-link folder-link {{ depth > 0 ? 'folder-link--nested' : '' }} {{ current_folder and current_folder.id == folder.id ? 'is-active' : '' }}"
-                href="{{ path('notes_folder', {id: folder.id}) }}"
-                style="--folder-indent: {{ depth * 18 }}px"
-            >
-                <span>
-                    <i class="filter-dot dot-green" aria-hidden="true"></i>
-                    {{ folder.name }}
-                </span>
-                <strong>{{ folder_counts[folder.id]|default(0) }}</strong>
-            </a>
-            {{ _self.links(folders, folder.id, current_folder, folder_counts, depth + 1) }}
+            {% set children = folders|filter(child => child.parent and child.parent.id == folder.id) %}
+            {% if children is not empty %}
+                <details class="folder-branch" open>
+                    <summary class="folder-branch__summary" style="--folder-indent: {{ depth * 18 }}px">
+                        <span class="folder-branch__chevron" aria-hidden="true"></span>
+                        {{ _self.link(folder, current_folder, folder_counts, depth, true) }}
+                    </summary>
+                    <div class="folder-branch__children">
+                        {{ _self.links(folders, folder.id, current_folder, folder_counts, depth + 1) }}
+                    </div>
+                </details>
+            {% else %}
+                {{ _self.link(folder, current_folder, folder_counts, depth) }}
+            {% endif %}
         {% endif %}
     {% endfor %}
+{% endmacro %}
+
+{% macro link(folder, current_folder, folder_counts, depth, in_summary = false) %}
+    <a
+        class="filter-link folder-link {{ in_summary ? 'folder-link--branch' : '' }} {{ depth > 0 ? 'folder-link--nested' : '' }} {{ current_folder and current_folder.id == folder.id ? 'is-active' : '' }}"
+        href="{{ path('notes_folder', {id: folder.id}) }}"
+        style="--folder-indent: {{ depth * 18 }}px"
+    >
+        <span>
+            <i class="filter-dot dot-green" aria-hidden="true"></i>
+            {{ folder.name }}
+        </span>
+        <strong>{{ folder_counts[folder.id]|default(0) }}</strong>
+    </a>
 {% endmacro %}
