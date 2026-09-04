@@ -11,7 +11,7 @@
                     <h1>{{ note.title }}</h1>
                     <p class="note-meta">
                         {% if note.folder %}
-                            <a href="{{ path('notes_folder', {id: note.folder.id}) }}">{{ note.folder.name }}</a>
+                            <a href="{{ path('notes_folder', {id: note.folder.id}) }}">{{ note.folder.path }}</a>
                             <span>·</span>
                         {% endif %}
                         <span>Updated {{ note.updatedAt|date('M j, Y H:i') }}</span>

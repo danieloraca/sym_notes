@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'notes/_folder_tree.html.twig' as folder_tree %}
 
 {% block title %}Notes - Sym Notes{% endblock %}
 
@@ -10,7 +11,7 @@
                 <h1 id="page-title">Keep the signal close.</h1>
                         <p class="lede">
                             {% if current_folder %}
-                                Notes filed under {{ current_folder.name }}.
+                                Notes filed under {{ current_folder.path }}.
                             {% else %}
                                 A focused home for notes, references, tiny decisions, and the useful fragments that deserve to be found again.
                             {% endif %}
@@ -84,12 +85,9 @@
                     <span><i class="filter-dot dot-blue" aria-hidden="true"></i>Uncategorized</span>
                     <strong>{{ uncategorized_count }}</strong>
                 </a>
-                {% for folder in folders %}
-                    <a class="filter-link {{ current_folder and current_folder.id == folder.id ? 'is-active' : '' }}" href="{{ path('notes_folder', {id: folder.id}) }}">
-                        <span><i class="filter-dot dot-green" aria-hidden="true"></i>{{ folder.name }}</span>
-                        <strong>{{ folder_counts[folder.id]|default(0) }}</strong>
-                    </a>
-                {% endfor %}
+                <div class="folder-tree">
+                    {{ folder_tree.links(folders, null, current_folder, folder_counts) }}
+                </div>
                 <a class="filter-link" href="{{ path('folders_new') }}">
                     <span><i class="filter-dot dot-gold" aria-hidden="true"></i>New folder</span>
                     <strong>+</strong>
@@ -135,7 +133,7 @@
                                 <div class="note-meta">
                                     <span>
                                         {% if note.folder %}
-                                            {{ note.folder.name }} ·
+                                            {{ note.folder.path }} ·
                                         {% endif %}
                                         Updated {{ note.updatedAt|date('M j, Y H:i') }}
                                     </span>

@@ -401,6 +401,21 @@ h1 {
     background: var(--accent-soft);
 }
 
+.folder-tree {
+    display: grid;
+    gap: 2px;
+}
+
+.folder-link {
+    padding-left: calc(12px + var(--folder-indent, 0px));
+}
+
+.folder-link--nested .filter-dot {
+    width: 7px;
+    height: 7px;
+    box-shadow: 0 0 0 3px rgb(0 0 0 / 0.04);
+}
+
 .filter-dot {
     display: inline-block;
     width: 9px;
@@ -929,6 +944,10 @@ h1 {
     }
 
     .section-label {
+        grid-column: 1 / -1;
+    }
+
+    .folder-tree {
         grid-column: 1 / -1;
     }
 

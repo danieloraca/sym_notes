@@ -21,8 +21,11 @@ class FolderController extends AbstractController
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request, FolderRepository $folders, EntityManagerInterface $entityManager): Response
     {
-        $folder = (new Folder())->setOwner($this->currentUser());
-        $form = $this->createForm(FolderType::class, $folder);
+        $owner = $this->currentUser();
+        $folder = (new Folder())->setOwner($owner);
+        $form = $this->createForm(FolderType::class, $folder, [
+            'folders' => $folders->findForOwner($owner),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -51,7 +54,9 @@ class FolderController extends AbstractController
     public function edit(int $id, Request $request, FolderRepository $folders, EntityManagerInterface $entityManager): Response
     {
         $folder = $this->findOwnedFolder($id, $folders);
-        $form = $this->createForm(FolderType::class, $folder);
+        $form = $this->createForm(FolderType::class, $folder, [
+            'folders' => $this->availableParentFolders($folders->findForOwner($this->currentUser()), $folder),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -88,6 +93,12 @@ class FolderController extends AbstractController
         $folder = $this->findOwnedFolder($id, $folders);
 
         if ($this->isCsrfTokenValid('delete-folder-'.$folder->getId(), (string) $request->request->get('_token'))) {
+            if (!$folder->getChildren()->isEmpty()) {
+                $this->addFlash('error', 'Move or delete this folder\'s subfolders before deleting it.');
+
+                return $this->redirectToRoute('notes_folder', ['id' => $folder->getId()]);
+            }
+
             foreach ($notes->findActiveForOwnerInFolder($this->currentUser(), $folder) as $note) {
                 $note->setFolder(null);
             }
@@ -120,6 +131,19 @@ class FolderController extends AbstractController
             $folder->getParent(),
             $exclude,
         );
+    }
+
+    /**
+     * @param list<Folder> $folders
+     *
+     * @return list<Folder>
+     */
+    private function availableParentFolders(array $folders, Folder $folder): array
+    {
+        return array_values(array_filter(
+            $folders,
+            static fn (Folder $candidate): bool => $candidate !== $folder && !$candidate->isDescendantOf($folder),
+        ));
     }
 
     private function currentUser(): User

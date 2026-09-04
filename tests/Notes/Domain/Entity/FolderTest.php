@@ -44,4 +44,26 @@ final class FolderTest extends TestCase
 
         self::assertGreaterThan($before, $folder->getUpdatedAt());
     }
+
+    public function testItBuildsItsFullPath(): void
+    {
+        $root = (new Folder())->setName('Projects');
+        $child = (new Folder())->setName('Gecko')->setParent($root);
+        $folder = (new Folder())->setName('API')->setParent($child);
+
+        self::assertSame('Projects / Gecko / API', $folder->getPath());
+    }
+
+    public function testItRecognizesAncestors(): void
+    {
+        $root = (new Folder())->setName('Projects');
+        $child = (new Folder())->setName('Gecko')->setParent($root);
+        $folder = (new Folder())->setName('API')->setParent($child);
+        $unrelated = (new Folder())->setName('Personal');
+
+        self::assertTrue($folder->isDescendantOf($root));
+        self::assertTrue($folder->isDescendantOf($child));
+        self::assertFalse($folder->isDescendantOf($unrelated));
+        self::assertFalse($root->isDescendantOf($folder));
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notes\Presentation\Form;
 
 use App\Notes\Domain\Entity\Folder;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -23,6 +24,15 @@ class FolderType extends AbstractType
                     'placeholder' => 'Projects',
                 ],
             ])
+            ->add('parent', EntityType::class, [
+                'class' => Folder::class,
+                'choices' => $options['folders'],
+                'choice_label' => static fn (Folder $folder): string => $folder->getPath(),
+                'label' => 'Parent folder',
+                'help' => 'Leave empty to create a top-level folder.',
+                'required' => false,
+                'placeholder' => 'No parent (top level)',
+            ])
             ->add('sortPosition', IntegerType::class, [
                 'label' => 'Sort position',
                 'required' => false,
@@ -34,6 +44,9 @@ class FolderType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Folder::class,
+            'folders' => [],
         ]);
+
+        $resolver->setAllowedTypes('folders', 'array');
     }
 }

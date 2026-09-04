@@ -132,6 +132,48 @@ class Folder
         return $this;
     }
 
+    public function getPath(): string
+    {
+        $segments = [];
+        $folder = $this;
+        $visited = [];
+
+        while (null !== $folder) {
+            $objectId = spl_object_id($folder);
+            if (isset($visited[$objectId])) {
+                break;
+            }
+
+            $visited[$objectId] = true;
+            $segments[] = $folder->getName();
+            $folder = $folder->getParent();
+        }
+
+        return implode(' / ', array_reverse($segments));
+    }
+
+    public function isDescendantOf(self $ancestor): bool
+    {
+        $folder = $this->parent;
+        $visited = [];
+
+        while (null !== $folder) {
+            if ($folder === $ancestor) {
+                return true;
+            }
+
+            $objectId = spl_object_id($folder);
+            if (isset($visited[$objectId])) {
+                break;
+            }
+
+            $visited[$objectId] = true;
+            $folder = $folder->getParent();
+        }
+
+        return false;
+    }
+
     /**
      * @return Collection<int, self>
      */
