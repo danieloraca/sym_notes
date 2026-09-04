@@ -518,6 +518,10 @@ h1 {
     min-width: 0;
 }
 
+.search-field label {
+    display: block;
+}
+
 .search-field input {
     width: 100%;
     min-height: 42px;

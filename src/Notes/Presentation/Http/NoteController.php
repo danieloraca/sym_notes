@@ -25,9 +25,10 @@ class NoteController extends AbstractController
     public function index(Request $request, NoteRepository $notes, FolderRepository $folders): Response
     {
         $owner = $this->currentUser();
-        $totalNotes = $notes->countActiveForOwner($owner);
+        $search = $this->searchQuery($request);
+        $totalNotes = $notes->countActiveForOwner($owner, $search);
         $pagination = $this->pagination($request, $totalNotes);
-        $activeNotes = $notes->findActiveForOwnerPage($owner, $pagination['page'], self::NOTES_PER_PAGE);
+        $activeNotes = $notes->findActiveForOwnerPage($owner, $pagination['page'], self::NOTES_PER_PAGE, $search);
         $ownedFolders = $folders->findForOwner($owner);
 
         return $this->render('notes/index.html.twig', [
@@ -42,7 +43,9 @@ class NoteController extends AbstractController
                 'drafts' => 0,
             ],
             'pagination' => $pagination,
-            'pagination_route_params' => [],
+            'search' => $search ?? '',
+            'search_route_params' => [],
+            'pagination_route_params' => $this->paginationRouteParams([], $search),
         ]);
     }
 
@@ -50,9 +53,10 @@ class NoteController extends AbstractController
     public function uncategorized(Request $request, NoteRepository $notes, FolderRepository $folders): Response
     {
         $owner = $this->currentUser();
-        $totalNotes = $notes->countActiveForOwnerInFolder($owner, null);
+        $search = $this->searchQuery($request);
+        $totalNotes = $notes->countActiveForOwnerInFolder($owner, null, $search);
         $pagination = $this->pagination($request, $totalNotes);
-        $activeNotes = $notes->findActiveForOwnerInFolderPage($owner, null, $pagination['page'], self::NOTES_PER_PAGE);
+        $activeNotes = $notes->findActiveForOwnerInFolderPage($owner, null, $pagination['page'], self::NOTES_PER_PAGE, $search);
         $ownedFolders = $folders->findForOwner($owner);
 
         return $this->render('notes/index.html.twig', [
@@ -67,7 +71,9 @@ class NoteController extends AbstractController
                 'drafts' => 0,
             ],
             'pagination' => $pagination,
-            'pagination_route_params' => [],
+            'search' => $search ?? '',
+            'search_route_params' => [],
+            'pagination_route_params' => $this->paginationRouteParams([], $search),
         ]);
     }
 
@@ -76,9 +82,10 @@ class NoteController extends AbstractController
     {
         $owner = $this->currentUser();
         $folder = $this->findOwnedFolder($id, $folders);
-        $totalNotes = $notes->countActiveForOwnerInFolder($owner, $folder);
+        $search = $this->searchQuery($request);
+        $totalNotes = $notes->countActiveForOwnerInFolder($owner, $folder, $search);
         $pagination = $this->pagination($request, $totalNotes);
-        $activeNotes = $notes->findActiveForOwnerInFolderPage($owner, $folder, $pagination['page'], self::NOTES_PER_PAGE);
+        $activeNotes = $notes->findActiveForOwnerInFolderPage($owner, $folder, $pagination['page'], self::NOTES_PER_PAGE, $search);
         $ownedFolders = $folders->findForOwner($owner);
 
         return $this->render('notes/index.html.twig', [
@@ -93,7 +100,9 @@ class NoteController extends AbstractController
                 'drafts' => 0,
             ],
             'pagination' => $pagination,
-            'pagination_route_params' => ['id' => $folder->getId()],
+            'search' => $search ?? '',
+            'search_route_params' => ['id' => (int) $folder->getId()],
+            'pagination_route_params' => $this->paginationRouteParams(['id' => (int) $folder->getId()], $search),
         ]);
     }
 
@@ -222,6 +231,27 @@ class NoteController extends AbstractController
             'first_item' => $total === 0 ? 0 : (($page - 1) * self::NOTES_PER_PAGE) + 1,
             'last_item' => min($page * self::NOTES_PER_PAGE, $total),
         ];
+    }
+
+    private function searchQuery(Request $request): ?string
+    {
+        $search = trim($request->query->getString('q'));
+
+        return '' === $search ? null : $search;
+    }
+
+    /**
+     * @param array<string, int> $routeParams
+     *
+     * @return array<string, int|string>
+     */
+    private function paginationRouteParams(array $routeParams, ?string $search): array
+    {
+        if (null !== $search) {
+            $routeParams['q'] = $search;
+        }
+
+        return $routeParams;
     }
 
     private function currentUser(): User

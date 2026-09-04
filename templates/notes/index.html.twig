@@ -96,10 +96,13 @@
 
             <section class="notes-panel" aria-label="Notes">
                 <div class="toolbar">
-                    <label class="search-field">
-                        <span class="visually-hidden">Search notes</span>
-                        <input type="search" name="q" placeholder="Search notes">
-                    </label>
+                    <form class="search-field" method="get" action="{{ path(app.request.attributes.get('_route'), search_route_params) }}">
+                        <label>
+                            <span class="visually-hidden">Search notes</span>
+                            <input type="search" name="q" value="{{ search }}" placeholder="Search notes">
+                        </label>
+                        <button class="visually-hidden" type="submit">Search</button>
+                    </form>
                     {% if current_folder %}
                         <a class="button button-secondary" href="{{ path('folders_edit', {id: current_folder.id}) }}">Edit Folder</a>
                     {% endif %}

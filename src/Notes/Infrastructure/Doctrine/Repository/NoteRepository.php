@@ -8,6 +8,7 @@ use App\Identity\Domain\Entity\User;
 use App\Notes\Domain\Entity\Folder;
 use App\Notes\Domain\Entity\Note;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,12 +24,15 @@ class NoteRepository extends ServiceEntityRepository
     /**
      * @return list<Note>
      */
-    public function findActiveForOwner(User $owner): array
+    public function findActiveForOwner(User $owner, ?string $search = null): array
     {
-        return $this->createQueryBuilder('note')
-            ->andWhere('note.owner = :owner')
-            ->andWhere('note.archivedAt IS NULL')
-            ->setParameter('owner', $owner)
+        return $this->applySearch(
+            $this->createQueryBuilder('note')
+                ->andWhere('note.owner = :owner')
+                ->andWhere('note.archivedAt IS NULL')
+                ->setParameter('owner', $owner),
+            $search,
+        )
             ->orderBy('note.isPinned', 'DESC')
             ->addOrderBy('note.updatedAt', 'DESC')
             ->addOrderBy('note.id', 'DESC')
@@ -39,12 +43,15 @@ class NoteRepository extends ServiceEntityRepository
     /**
      * @return list<Note>
      */
-    public function findActiveForOwnerPage(User $owner, int $page, int $perPage): array
+    public function findActiveForOwnerPage(User $owner, int $page, int $perPage, ?string $search = null): array
     {
-        return $this->createQueryBuilder('note')
-            ->andWhere('note.owner = :owner')
-            ->andWhere('note.archivedAt IS NULL')
-            ->setParameter('owner', $owner)
+        return $this->applySearch(
+            $this->createQueryBuilder('note')
+                ->andWhere('note.owner = :owner')
+                ->andWhere('note.archivedAt IS NULL')
+                ->setParameter('owner', $owner),
+            $search,
+        )
             ->orderBy('note.isPinned', 'DESC')
             ->addOrderBy('note.updatedAt', 'DESC')
             ->addOrderBy('note.id', 'DESC')
@@ -57,12 +64,15 @@ class NoteRepository extends ServiceEntityRepository
     /**
      * @return list<Note>
      */
-    public function findActiveForOwnerInFolder(User $owner, ?Folder $folder): array
+    public function findActiveForOwnerInFolder(User $owner, ?Folder $folder, ?string $search = null): array
     {
-        $queryBuilder = $this->createQueryBuilder('note')
-            ->andWhere('note.owner = :owner')
-            ->andWhere('note.archivedAt IS NULL')
-            ->setParameter('owner', $owner);
+        $queryBuilder = $this->applySearch(
+            $this->createQueryBuilder('note')
+                ->andWhere('note.owner = :owner')
+                ->andWhere('note.archivedAt IS NULL')
+                ->setParameter('owner', $owner),
+            $search,
+        );
 
         if ($folder) {
             $queryBuilder
@@ -83,12 +93,15 @@ class NoteRepository extends ServiceEntityRepository
     /**
      * @return list<Note>
      */
-    public function findActiveForOwnerInFolderPage(User $owner, ?Folder $folder, int $page, int $perPage): array
+    public function findActiveForOwnerInFolderPage(User $owner, ?Folder $folder, int $page, int $perPage, ?string $search = null): array
     {
-        $queryBuilder = $this->createQueryBuilder('note')
-            ->andWhere('note.owner = :owner')
-            ->andWhere('note.archivedAt IS NULL')
-            ->setParameter('owner', $owner);
+        $queryBuilder = $this->applySearch(
+            $this->createQueryBuilder('note')
+                ->andWhere('note.owner = :owner')
+                ->andWhere('note.archivedAt IS NULL')
+                ->setParameter('owner', $owner),
+            $search,
+        );
 
         if ($folder) {
             $queryBuilder
@@ -119,13 +132,16 @@ class NoteRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function countActiveForOwner(User $owner): int
+    public function countActiveForOwner(User $owner, ?string $search = null): int
     {
-        return (int) $this->createQueryBuilder('note')
-            ->select('COUNT(note.id)')
-            ->andWhere('note.owner = :owner')
-            ->andWhere('note.archivedAt IS NULL')
-            ->setParameter('owner', $owner)
+        return (int) $this->applySearch(
+            $this->createQueryBuilder('note')
+                ->select('COUNT(note.id)')
+                ->andWhere('note.owner = :owner')
+                ->andWhere('note.archivedAt IS NULL')
+                ->setParameter('owner', $owner),
+            $search,
+        )
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -142,13 +158,16 @@ class NoteRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function countActiveForOwnerInFolder(User $owner, ?Folder $folder): int
+    public function countActiveForOwnerInFolder(User $owner, ?Folder $folder, ?string $search = null): int
     {
-        $queryBuilder = $this->createQueryBuilder('note')
-            ->select('COUNT(note.id)')
-            ->andWhere('note.owner = :owner')
-            ->andWhere('note.archivedAt IS NULL')
-            ->setParameter('owner', $owner);
+        $queryBuilder = $this->applySearch(
+            $this->createQueryBuilder('note')
+                ->select('COUNT(note.id)')
+                ->andWhere('note.owner = :owner')
+                ->andWhere('note.archivedAt IS NULL')
+                ->setParameter('owner', $owner),
+            $search,
+        );
 
         if ($folder) {
             $queryBuilder
@@ -159,6 +178,18 @@ class NoteRepository extends ServiceEntityRepository
         }
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+    private function applySearch(QueryBuilder $queryBuilder, ?string $search): QueryBuilder
+    {
+        $search = trim((string) $search);
+        if ('' === $search) {
+            return $queryBuilder;
+        }
+
+        return $queryBuilder
+            ->andWhere('(LOWER(note.title) LIKE :search OR LOWER(note.content) LIKE :search)')
+            ->setParameter('search', '%'.mb_strtolower($search).'%');
     }
 
     private function pageOffset(int $page, int $perPage): int
