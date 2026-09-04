@@ -649,10 +649,12 @@ h1 {
 .note-list {
     display: grid;
     gap: 12px;
+    min-width: 0;
     padding: 16px;
 }
 
 .note-card {
+    min-width: 0;
     padding: 18px;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -676,11 +678,18 @@ h1 {
     align-items: start;
     justify-content: space-between;
     gap: 14px;
+    min-width: 0;
 }
 
 .note-card p {
     margin-bottom: 0;
     color: var(--muted);
+    overflow-wrap: anywhere;
+}
+
+.note-card h2,
+.note-meta {
+    overflow-wrap: anywhere;
 }
 
 .note-meta {

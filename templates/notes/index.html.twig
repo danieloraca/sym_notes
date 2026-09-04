@@ -128,7 +128,7 @@
                                         <span class="note-pill">Pinned</span>
                                     {% endif %}
                                 </div>
-                                {% set summary = note.content|striptags %}
+                                {% set summary = note.content|markdown_to_html|striptags %}
                                 <p>{{ summary|slice(0, 180) }}{% if summary|length > 180 %}...{% endif %}</p>
                                 <div class="note-meta">
                                     <span>
