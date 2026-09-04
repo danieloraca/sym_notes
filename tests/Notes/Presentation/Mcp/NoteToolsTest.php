@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Notes\Presentation\Mcp;
 
 use App\Identity\Domain\Entity\User;
+use App\Notes\Domain\Entity\Folder;
 use App\Notes\Domain\Entity\Note;
 use App\Notes\Infrastructure\Doctrine\Repository\FolderRepository;
 use App\Notes\Infrastructure\Doctrine\Repository\NoteRepository;
@@ -57,7 +58,79 @@ final class NoteToolsTest extends TestCase
         $this->tools($owner, $notes)->getNote(42);
     }
 
-    private function tools(User $owner, NoteRepository $notes, ?EntityManagerInterface $entityManager = null): NoteTools
+    public function testItCreatesAFolderForTheAuthenticatedOwner(): void
+    {
+        $owner = (new User())->setEmail('daniel@example.com');
+        $notes = $this->createStub(NoteRepository::class);
+        $folders = $this->createMock(FolderRepository::class);
+        $folders->expects(self::once())
+            ->method('nameExistsForOwner')
+            ->with($owner, 'MCP demos', null)
+            ->willReturn(false);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist')->with(self::callback(
+            static fn (Folder $folder): bool => $folder->getOwner() === $owner
+                && 'MCP demos' === $folder->getName()
+                && 10 === $folder->getSortPosition()
+                && null === $folder->getParent(),
+        ));
+        $entityManager->expects(self::once())->method('flush');
+
+        $result = $this->tools($owner, $notes, $entityManager, $folders)->createFolder(' MCP demos ', sortPosition: 10);
+
+        self::assertSame('MCP demos', $result['folder']['name']);
+        self::assertNull($result['folder']['parentId']);
+    }
+
+    public function testItRejectsADuplicateFolderNameWithinTheSameParent(): void
+    {
+        $owner = (new User())->setEmail('daniel@example.com');
+        $notes = $this->createStub(NoteRepository::class);
+        $folders = $this->createMock(FolderRepository::class);
+        $folders->expects(self::once())
+            ->method('nameExistsForOwner')
+            ->with($owner, 'MCP', null)
+            ->willReturn(true);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
+
+        $this->expectException(ToolCallException::class);
+        $this->expectExceptionMessage('A folder with that name already exists in the selected parent.');
+
+        $this->tools($owner, $notes, $entityManager, $folders)->createFolder('MCP');
+    }
+
+    public function testItCreatesANestedFolderOnlyUnderAnOwnedParent(): void
+    {
+        $owner = (new User())->setEmail('daniel@example.com');
+        $parent = (new Folder())->setOwner($owner)->setName('Projects');
+        $notes = $this->createStub(NoteRepository::class);
+        $folders = $this->createMock(FolderRepository::class);
+        $folders->expects(self::once())
+            ->method('findOneForOwner')
+            ->with(7, $owner)
+            ->willReturn($parent);
+        $folders->expects(self::once())
+            ->method('nameExistsForOwner')
+            ->with($owner, 'Archive', $parent)
+            ->willReturn(false);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist')->with(self::callback(
+            static fn (Folder $folder): bool => $folder->getOwner() === $owner
+                && 'Archive' === $folder->getName()
+                && $parent === $folder->getParent(),
+        ));
+        $entityManager->expects(self::once())->method('flush');
+
+        $this->tools($owner, $notes, $entityManager, $folders)->createFolder('Archive', parentId: 7);
+    }
+
+    private function tools(
+        User $owner,
+        NoteRepository $notes,
+        ?EntityManagerInterface $entityManager = null,
+        ?FolderRepository $folders = null,
+    ): NoteTools
     {
         $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn($owner);
@@ -65,7 +138,7 @@ final class NoteToolsTest extends TestCase
         return new NoteTools(
             $security,
             $notes,
-            $this->createStub(FolderRepository::class),
+            $folders ?? $this->createStub(FolderRepository::class),
             $entityManager ?? $this->createStub(EntityManagerInterface::class),
         );
     }

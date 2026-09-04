@@ -268,6 +268,45 @@ final class NoteTools
         return ['folders' => $folders, 'count' => count($folders)];
     }
 
+    /**
+     * Create a folder.
+     *
+     * @return array{folder: array<string, mixed>}
+     */
+    #[McpTool(
+        name: 'folders_create',
+        title: 'Create folder',
+        description: 'Create a folder in the user\'s Sym Notes (sym_notes) application. Optionally pass the ID of an existing owned folder to create a nested folder. Folder names must be unique within the same parent.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false),
+    )]
+    public function createFolder(
+        #[Schema(description: 'Folder name.', minLength: 1, maxLength: 120)]
+        string $name,
+        #[Schema(description: 'Optional parent folder ID owned by the authenticated user.', minimum: 1)]
+        ?int $parentId = null,
+        #[Schema(description: 'Sort position used when displaying the folder.')]
+        int $sortPosition = 0,
+    ): array {
+        $owner = $this->currentUser();
+        $name = $this->validFolderName($name);
+        $parent = null === $parentId ? null : $this->ownedFolder($parentId, $owner);
+
+        if ($this->folders->nameExistsForOwner($owner, $name, $parent)) {
+            throw new ToolCallException('A folder with that name already exists in the selected parent.');
+        }
+
+        $folder = (new Folder())
+            ->setOwner($owner)
+            ->setName($name)
+            ->setParent($parent)
+            ->setSortPosition($sortPosition);
+
+        $this->entityManager->persist($folder);
+        $this->entityManager->flush();
+
+        return ['folder' => $this->folderData($folder)];
+    }
+
     private function currentUser(): User
     {
         $user = $this->security->getUser();
@@ -315,6 +354,16 @@ final class NoteTools
         }
 
         return $content;
+    }
+
+    private function validFolderName(string $name): string
+    {
+        $name = trim($name);
+        if ('' === $name || mb_strlen($name) > 120) {
+            throw new ToolCallException('Folder name must contain between 1 and 120 characters.');
+        }
+
+        return $name;
     }
 
     private function boundedLimit(int $limit): int

@@ -9,10 +9,12 @@ mcp:
                 sym-notes. Whenever the user asks to save, add, write, read, search, or
                 manage something in Sym Notes, use these tools instead of the filesystem
                 or a browser; the user does not need to say "MCP". If a destination folder
-                is named, call folders_list to resolve its ID, then pass that folderId to
-                notes_create or notes_move. Never create a local file or directory for a
-                Sym Notes request. Only operate on the authenticated user's notes and
-                prefer archiving over destructive deletion.
+                is named, call folders_list to resolve its ID. If it does not exist and the
+                user asked to create it or clearly requested saving into that new folder,
+                call folders_create. Then pass the folderId to notes_create or notes_move.
+                Never create a local file or directory for a Sym Notes request. Only
+                operate on the authenticated user's notes and prefer archiving over
+                destructive deletion.
             transports:
                 http: true
                 stdio: false

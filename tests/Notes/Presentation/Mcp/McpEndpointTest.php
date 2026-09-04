@@ -81,9 +81,10 @@ final class McpEndpointTest extends WebTestCase
         $response = json_decode((string) $client->getResponse()->getContent(), true, flags: JSON_THROW_ON_ERROR);
         $names = array_column($response['result']['tools'], 'name');
 
-        self::assertCount(9, $names);
+        self::assertCount(10, $names);
         self::assertContains('notes_list', $names);
         self::assertContains('notes_create', $names);
         self::assertContains('folders_list', $names);
+        self::assertContains('folders_create', $names);
     }
 }
