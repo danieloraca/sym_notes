@@ -77,14 +77,20 @@ final class McpEndpointTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
 
-        /** @var array{result: array{tools: list<array{name: string}>}} $response */
+        /** @var array{result: array{tools: list<array{name: string, inputSchema: array<string, mixed>}>}} $response */
         $response = json_decode((string) $client->getResponse()->getContent(), true, flags: JSON_THROW_ON_ERROR);
         $names = array_column($response['result']['tools'], 'name');
 
-        self::assertCount(11, $names);
+        self::assertCount(12, $names);
         self::assertContains('notes_list', $names);
         self::assertContains('notes_create', $names);
+        self::assertContains('notes_attach', $names);
         self::assertContains('folders_list', $names);
         self::assertContains('folders_create', $names);
+
+        $tools = array_column($response['result']['tools'], null, 'name');
+        $attachmentSchema = $tools['notes_attach']['inputSchema'];
+        self::assertSame(['id', 'filename', 'mimeType', 'contentBase64'], $attachmentSchema['required']);
+        self::assertSame(13_981_016, $attachmentSchema['properties']['contentBase64']['maxLength']);
     }
 }

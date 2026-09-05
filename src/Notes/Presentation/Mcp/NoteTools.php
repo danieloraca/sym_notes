@@ -7,24 +7,29 @@ namespace App\Notes\Presentation\Mcp;
 use App\Identity\Domain\Entity\User;
 use App\Notes\Domain\Entity\Folder;
 use App\Notes\Domain\Entity\Note;
+use App\Notes\Domain\Entity\NoteAttachment;
 use App\Notes\Infrastructure\Doctrine\Repository\FolderRepository;
 use App\Notes\Infrastructure\Doctrine\Repository\NoteRepository;
+use App\Notes\Infrastructure\Storage\NoteAttachmentStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
 use Mcp\Exception\ToolCallException;
 use Mcp\Schema\ToolAnnotations;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 final class NoteTools
 {
     private const int MAX_CONTENT_LENGTH = 200_000;
+    private const int MAX_ATTACHMENT_BASE64_LENGTH = 13_981_016;
 
     public function __construct(
         private readonly Security $security,
         private readonly NoteRepository $notes,
         private readonly FolderRepository $folders,
         private readonly EntityManagerInterface $entityManager,
+        private readonly NoteAttachmentStorage $attachmentStorage,
     ) {
     }
 
@@ -179,6 +184,61 @@ final class NoteTools
         $this->entityManager->flush();
 
         return ['note' => $this->noteData($note)];
+    }
+
+    /**
+     * Attach a base64-encoded file to an existing note.
+     *
+     * @return array{attachment: array<string, mixed>, note: array<string, mixed>}
+     */
+    #[McpTool(
+        name: 'notes_attach',
+        title: 'Attach file to note',
+        description: 'Attach a binary file to a note belonging to the authenticated user. Pass the raw file bytes as standard base64 without a data-URI prefix. Files may be up to 10 MB.',
+        annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false),
+    )]
+    public function attachFile(
+        #[Schema(description: 'Note ID.', minimum: 1)]
+        int $id,
+        #[Schema(description: 'Original filename shown in Sym Notes.', minLength: 1, maxLength: 255)]
+        string $filename,
+        #[Schema(description: 'MIME type, such as application/pdf or image/png.', minLength: 3, maxLength: 255)]
+        string $mimeType,
+        #[Schema(description: 'Raw file bytes encoded as standard base64, without a data-URI prefix.', maxLength: self::MAX_ATTACHMENT_BASE64_LENGTH)]
+        string $contentBase64,
+    ): array {
+        $note = $this->ownedNote($id, $this->currentUser());
+
+        if (strlen($contentBase64) > self::MAX_ATTACHMENT_BASE64_LENGTH) {
+            throw new ToolCallException('Attachment content exceeds the 10 MB limit.');
+        }
+
+        $content = base64_decode($contentBase64, true);
+        if (false === $content) {
+            throw new ToolCallException('Attachment content must be valid base64.');
+        }
+
+        try {
+            $attachment = $this->attachmentStorage->storeContent($note, $filename, $mimeType, $content);
+        } catch (FileException $exception) {
+            throw new ToolCallException($exception->getMessage(), previous: $exception);
+        }
+
+        try {
+            $this->entityManager->persist($attachment);
+            $this->entityManager->flush();
+        } catch (\Throwable $exception) {
+            $this->attachmentStorage->remove($attachment);
+
+            throw $exception;
+        }
+
+        $note->addAttachment($attachment);
+
+        return [
+            'attachment' => $this->attachmentData($attachment),
+            'note' => $this->noteData($note),
+        ];
     }
 
     /**
@@ -400,9 +460,22 @@ final class NoteTools
             'content' => $note->getContent(),
             'pinned' => $note->isPinned(),
             'folder' => null === $note->getFolder() ? null : $this->folderData($note->getFolder()),
+            'attachments' => array_map($this->attachmentData(...), $note->getAttachments()->toArray()),
             'archivedAt' => $note->getArchivedAt()?->format(DATE_ATOM),
             'createdAt' => $note->getCreatedAt()->format(DATE_ATOM),
             'updatedAt' => $note->getUpdatedAt()->format(DATE_ATOM),
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function attachmentData(NoteAttachment $attachment): array
+    {
+        return [
+            'id' => $attachment->getId(),
+            'filename' => $attachment->getOriginalName(),
+            'mimeType' => $attachment->getMimeType(),
+            'size' => $attachment->getSize(),
+            'createdAt' => $attachment->getCreatedAt()->format(DATE_ATOM),
         ];
     }
 

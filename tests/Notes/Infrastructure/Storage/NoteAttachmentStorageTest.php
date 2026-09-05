@@ -49,6 +49,19 @@ final class NoteAttachmentStorageTest extends TestCase
         self::assertFileDoesNotExist($storage->path($attachment));
     }
 
+    public function testItStoresRawContentForNonHttpClients(): void
+    {
+        $storage = new NoteAttachmentStorage($this->directory);
+
+        $attachment = $storage->storeContent(new Note(), 'report.pdf', 'application/pdf', '%PDF contents');
+
+        self::assertSame('report.pdf', $attachment->getOriginalName());
+        self::assertSame('application/pdf', $attachment->getMimeType());
+        self::assertSame(13, $attachment->getSize());
+        self::assertSame('%PDF contents', file_get_contents($storage->path($attachment)));
+        self::assertStringEndsWith('.pdf', $attachment->getStoredName());
+    }
+
     public function testItRejectsFilesLargerThanTenMegabytes(): void
     {
         $source = $this->directory.'/large.bin';
@@ -62,6 +75,19 @@ final class NoteAttachmentStorageTest extends TestCase
         $this->expectExceptionMessage('no larger than 10 MB');
 
         (new NoteAttachmentStorage($this->directory))->store(new Note(), $upload);
+    }
+
+    public function testItRejectsRawContentLargerThanTenMegabytes(): void
+    {
+        $this->expectException(FileException::class);
+        $this->expectExceptionMessage('no larger than 10 MB');
+
+        (new NoteAttachmentStorage($this->directory))->storeContent(
+            new Note(),
+            'large.bin',
+            'application/octet-stream',
+            str_repeat('a', NoteAttachmentStorage::MAX_FILE_SIZE + 1),
+        );
     }
 
     public function testItFallsBackForAnInvalidMimeType(): void

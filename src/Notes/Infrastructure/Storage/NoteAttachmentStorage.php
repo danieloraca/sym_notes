@@ -20,9 +20,7 @@ class NoteAttachmentStorage
 
     public function store(Note $note, UploadedFile $file): NoteAttachment
     {
-        if (!is_dir($this->directory) && !mkdir($this->directory, 0770, true) && !is_dir($this->directory)) {
-            throw new FileException('The attachment storage directory could not be created.');
-        }
+        $this->ensureDirectoryExists();
 
         $size = $file->getSize();
 
@@ -34,19 +32,33 @@ class NoteAttachmentStorage
             throw new FileException($file->getErrorMessage());
         }
 
-        $extension = strtolower((string) pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
-        $extension = preg_replace('/[^a-z0-9]+/', '', $extension) ?? '';
-        $storedName = bin2hex(random_bytes(20)).('' === $extension ? '' : '.'.substr($extension, 0, 16));
-        $originalName = basename(str_replace('\\', '/', $file->getClientOriginalName()));
-        $originalName = trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $originalName) ?? '');
-        $originalName = '' === $originalName ? 'attachment' : mb_substr($originalName, 0, 255);
-        $mimeType = $file->getClientMimeType();
-
-        if (strlen($mimeType) > 255 || 1 !== preg_match('#^[a-z0-9][a-z0-9.+-]*/[a-z0-9][a-z0-9.+-]*$#i', $mimeType)) {
-            $mimeType = 'application/octet-stream';
-        }
+        [$originalName, $storedName, $mimeType] = $this->metadata($file->getClientOriginalName(), $file->getClientMimeType());
 
         $file->move($this->directory, $storedName);
+
+        return new NoteAttachment($note, $originalName, $storedName, $mimeType, $size);
+    }
+
+    public function storeContent(Note $note, string $originalName, string $mimeType, string $content): NoteAttachment
+    {
+        $this->ensureDirectoryExists();
+
+        $size = strlen($content);
+        if ($size > self::MAX_FILE_SIZE) {
+            throw new FileException(sprintf('Each attachment must be no larger than %d MB.', self::MAX_FILE_SIZE / 1024 / 1024));
+        }
+
+        [$originalName, $storedName, $mimeType] = $this->metadata($originalName, $mimeType);
+        $path = $this->directory.DIRECTORY_SEPARATOR.$storedName;
+        $written = file_put_contents($path, $content, LOCK_EX);
+
+        if (false === $written || $written !== $size) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+
+            throw new FileException('The attachment could not be stored.');
+        }
 
         return new NoteAttachment($note, $originalName, $storedName, $mimeType, $size);
     }
@@ -63,5 +75,29 @@ class NoteAttachmentStorage
         if (is_file($path)) {
             unlink($path);
         }
+    }
+
+    private function ensureDirectoryExists(): void
+    {
+        if (!is_dir($this->directory) && !mkdir($this->directory, 0770, true) && !is_dir($this->directory)) {
+            throw new FileException('The attachment storage directory could not be created.');
+        }
+    }
+
+    /** @return array{string, string, string} */
+    private function metadata(string $originalName, string $mimeType): array
+    {
+        $extension = strtolower((string) pathinfo($originalName, PATHINFO_EXTENSION));
+        $extension = preg_replace('/[^a-z0-9]+/', '', $extension) ?? '';
+        $storedName = bin2hex(random_bytes(20)).('' === $extension ? '' : '.'.substr($extension, 0, 16));
+        $originalName = basename(str_replace('\\', '/', $originalName));
+        $originalName = trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $originalName) ?? '');
+        $originalName = '' === $originalName ? 'attachment' : mb_substr($originalName, 0, 255);
+
+        if (strlen($mimeType) > 255 || 1 !== preg_match('#^[a-z0-9][a-z0-9.+-]*/[a-z0-9][a-z0-9.+-]*$#i', $mimeType)) {
+            $mimeType = 'application/octet-stream';
+        }
+
+        return [$originalName, $storedName, $mimeType];
     }
 }
