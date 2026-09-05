@@ -7,6 +7,7 @@ namespace App\Tests\Notes\Domain\Entity;
 use App\Identity\Domain\Entity\User;
 use App\Notes\Domain\Entity\Folder;
 use App\Notes\Domain\Entity\Note;
+use App\Notes\Domain\Entity\NoteAttachment;
 use PHPUnit\Framework\TestCase;
 
 final class NoteTest extends TestCase
@@ -53,5 +54,17 @@ final class NoteTest extends TestCase
         $note->touchUpdatedAt();
 
         self::assertGreaterThan($before, $note->getUpdatedAt());
+    }
+
+    public function testItCollectsAttachments(): void
+    {
+        $note = new Note();
+        $attachment = new NoteAttachment($note, 'plan.pdf', 'stored.pdf', 'application/pdf', 1234);
+
+        $note->addAttachment($attachment);
+        $note->addAttachment($attachment);
+
+        self::assertCount(1, $note->getAttachments());
+        self::assertSame($attachment, $note->getAttachments()->first());
     }
 }

@@ -9,6 +9,7 @@ use App\Notes\Domain\Entity\Note;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -40,6 +41,16 @@ class NoteType extends AbstractType
                 'attr' => [
                     'rows' => 14,
                     'placeholder' => "Write the note...\n\nUse `inline code` or:\n\n```sh\nmake migrate\n```",
+                ],
+            ])
+            ->add('attachments', FileType::class, [
+                'label' => 'Attachments',
+                'help' => 'Choose up to 10 files. Maximum 10 MB per file.',
+                'mapped' => false,
+                'multiple' => true,
+                'required' => false,
+                'attr' => [
+                    'data-attachment-input' => '',
                 ],
             ])
             ->add('isPinned', CheckboxType::class, [

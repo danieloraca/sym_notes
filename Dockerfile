@@ -3,6 +3,7 @@ FROM php:8.4-cli-alpine AS base
 WORKDIR /app
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 RUN docker-php-ext-install pdo_mysql
 
@@ -37,7 +38,7 @@ COPY . .
 RUN composer dump-autoload --classmap-authoritative --no-dev \
     && php bin/console importmap:install \
     && php bin/console asset-map:compile \
-    && mkdir -p var/cache var/log \
+    && mkdir -p var/cache var/log var/uploads/notes \
     && chown -R www-data:www-data var
 
 USER www-data

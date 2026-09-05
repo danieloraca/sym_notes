@@ -22,10 +22,14 @@ $_ENV['APP_SHARE_DIR'] = $_SERVER['APP_SHARE_DIR'];
 $_SERVER['DEFAULT_URI'] ??= 'http://localhost';
 $_ENV['DEFAULT_URI'] = $_SERVER['DEFAULT_URI'];
 
-$_SERVER['MCP_TOKEN'] ??= str_repeat('a', 64);
+if ('' === ($_SERVER['MCP_TOKEN'] ?? '')) {
+    $_SERVER['MCP_TOKEN'] = str_repeat('a', 64);
+}
 $_ENV['MCP_TOKEN'] = $_SERVER['MCP_TOKEN'];
 
-$_SERVER['MCP_USER_EMAIL'] ??= 'mcp@example.com';
+if ('' === ($_SERVER['MCP_USER_EMAIL'] ?? '')) {
+    $_SERVER['MCP_USER_EMAIL'] = 'mcp@example.com';
+}
 $_ENV['MCP_USER_EMAIL'] = $_SERVER['MCP_USER_EMAIL'];
 
 $_SERVER['MCP_ALLOWED_HOSTS'] ??= 'localhost,127.0.0.1';

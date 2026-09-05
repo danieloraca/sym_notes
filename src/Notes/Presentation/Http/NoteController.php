@@ -7,13 +7,21 @@ namespace App\Notes\Presentation\Http;
 use App\Identity\Domain\Entity\User;
 use App\Notes\Domain\Entity\Folder;
 use App\Notes\Domain\Entity\Note;
+use App\Notes\Infrastructure\Doctrine\Repository\NoteAttachmentRepository;
 use App\Notes\Infrastructure\Doctrine\Repository\FolderRepository;
 use App\Notes\Infrastructure\Doctrine\Repository\NoteRepository;
+use App\Notes\Infrastructure\Storage\NoteAttachmentStorage;
 use App\Notes\Presentation\Form\NoteType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(name: 'notes_')]
@@ -107,7 +115,7 @@ class NoteController extends AbstractController
     }
 
     #[Route('/notes/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, FolderRepository $folders, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, FolderRepository $folders, EntityManagerInterface $entityManager, NoteAttachmentStorage $attachmentStorage): Response
     {
         $owner = $this->currentUser();
         $note = (new Note())->setOwner($owner);
@@ -117,12 +125,23 @@ class NoteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($note);
-            $entityManager->flush();
+            $storedAttachments = [];
 
-            $this->addFlash('success', 'Note created.');
+            try {
+                $storedAttachments = $this->storeAttachments($note, $form, $attachmentStorage);
+                $entityManager->persist($note);
+                $entityManager->flush();
 
-            return $this->redirectToRoute('notes_show', ['id' => $note->getId()]);
+                $this->addFlash('success', 'Note created.');
+
+                return $this->redirectToRoute('notes_show', ['id' => $note->getId()]);
+            } catch (FileException $exception) {
+                $form->get('attachments')->addError(new FormError($exception->getMessage()));
+            } catch (\Throwable $exception) {
+                $this->removeAttachments($storedAttachments, $attachmentStorage);
+
+                throw $exception;
+            }
         }
 
         return $this->render('notes/new.html.twig', [
@@ -139,7 +158,7 @@ class NoteController extends AbstractController
     }
 
     #[Route('/notes/{id}/edit', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(int $id, Request $request, NoteRepository $notes, FolderRepository $folders, EntityManagerInterface $entityManager): Response
+    public function edit(int $id, Request $request, NoteRepository $notes, FolderRepository $folders, EntityManagerInterface $entityManager, NoteAttachmentStorage $attachmentStorage): Response
     {
         $owner = $this->currentUser();
         $note = $this->findOwnedNote($id, $notes);
@@ -149,11 +168,22 @@ class NoteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $storedAttachments = [];
 
-            $this->addFlash('success', 'Note saved.');
+            try {
+                $storedAttachments = $this->storeAttachments($note, $form, $attachmentStorage);
+                $entityManager->flush();
 
-            return $this->redirectToRoute('notes_show', ['id' => $note->getId()]);
+                $this->addFlash('success', 'Note saved.');
+
+                return $this->redirectToRoute('notes_show', ['id' => $note->getId()]);
+            } catch (FileException $exception) {
+                $form->get('attachments')->addError(new FormError($exception->getMessage()));
+            } catch (\Throwable $exception) {
+                $this->removeAttachments($storedAttachments, $attachmentStorage);
+
+                throw $exception;
+            }
         }
 
         return $this->render('notes/edit.html.twig', [
@@ -163,18 +193,88 @@ class NoteController extends AbstractController
     }
 
     #[Route('/notes/{id}/delete', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(int $id, Request $request, NoteRepository $notes, EntityManagerInterface $entityManager): Response
+    public function delete(int $id, Request $request, NoteRepository $notes, EntityManagerInterface $entityManager, NoteAttachmentStorage $attachmentStorage): Response
     {
         $note = $this->findOwnedNote($id, $notes);
 
         if ($this->isCsrfTokenValid('delete-note-'.$note->getId(), (string) $request->request->get('_token'))) {
+            $attachments = $note->getAttachments()->toArray();
+
             $entityManager->remove($note);
             $entityManager->flush();
+            $this->removeAttachments($attachments, $attachmentStorage);
 
             $this->addFlash('success', 'Note deleted.');
         }
 
         return $this->redirectToRoute('notes_index');
+    }
+
+    #[Route('/notes/attachments/{id}/download', name: 'attachment_download', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function downloadAttachment(int $id, NoteAttachmentRepository $attachments, NoteAttachmentStorage $attachmentStorage): Response
+    {
+        $attachment = $attachments->findOneForOwner($id, $this->currentUser());
+
+        if (!$attachment) {
+            throw $this->createNotFoundException('Attachment not found.');
+        }
+
+        $path = $attachmentStorage->path($attachment);
+
+        if (!is_file($path)) {
+            throw $this->createNotFoundException('Attachment file not found.');
+        }
+
+        $response = new BinaryFileResponse($path);
+        $response->headers->set('Content-Type', $attachment->getMimeType());
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $attachment->getOriginalName());
+
+        return $response;
+    }
+
+    /** @return list<\App\Notes\Domain\Entity\NoteAttachment> */
+    private function storeAttachments(Note $note, FormInterface $form, NoteAttachmentStorage $storage): array
+    {
+        $files = $form->get('attachments')->getData();
+
+        if (!is_array($files)) {
+            return [];
+        }
+
+        if (count($files) > NoteAttachmentStorage::MAX_FILES) {
+            throw new FileException(sprintf('A note can have up to %d files per upload.', NoteAttachmentStorage::MAX_FILES));
+        }
+
+        $stored = [];
+
+        try {
+            foreach ($files as $file) {
+                if (!$file instanceof UploadedFile) {
+                    continue;
+                }
+
+                $attachment = $storage->store($note, $file);
+                $note->addAttachment($attachment);
+                $stored[] = $attachment;
+            }
+        } catch (\Throwable $exception) {
+            foreach ($stored as $attachment) {
+                $storage->remove($attachment);
+            }
+
+            throw $exception;
+        }
+
+        return $stored;
+    }
+
+    /** @param iterable<\App\Notes\Domain\Entity\NoteAttachment> $attachments */
+    private function removeAttachments(iterable $attachments, NoteAttachmentStorage $storage): void
+    {
+        foreach ($attachments as $attachment) {
+            $storage->remove($attachment);
+        }
     }
 
     private function findOwnedNote(int $id, NoteRepository $notes): Note

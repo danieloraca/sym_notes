@@ -16,6 +16,8 @@ services:
       MCP_ALLOWED_HOSTS: "${MCP_ALLOWED_HOSTS:-192.168.0.25,localhost,127.0.0.1}"
     ports:
       - "0.0.0.0:3444:8000"
+    volumes:
+      - note-attachments:/app/var/uploads/notes
     depends_on:
       db:
         condition: service_healthy
@@ -66,4 +68,5 @@ services:
 
 volumes:
   mysql-data:
+  note-attachments:
   tools-vendor:

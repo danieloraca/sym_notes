@@ -6,6 +6,8 @@ namespace App\Notes\Domain\Entity;
 
 use App\Identity\Domain\Entity\User;
 use App\Notes\Infrastructure\Doctrine\Repository\NoteRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -45,12 +47,18 @@ class Note
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Folder $folder = null;
 
+    /** @var Collection<int, NoteAttachment> */
+    #[ORM\OneToMany(mappedBy: 'note', targetEntity: NoteAttachment::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    private Collection $attachments;
+
     public function __construct()
     {
         $now = new \DateTimeImmutable();
 
         $this->createdAt = $now;
         $this->updatedAt = $now;
+        $this->attachments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -149,6 +157,21 @@ class Note
     public function setFolder(?Folder $folder): self
     {
         $this->folder = $folder;
+
+        return $this;
+    }
+
+    /** @return Collection<int, NoteAttachment> */
+    public function getAttachments(): Collection
+    {
+        return $this->attachments;
+    }
+
+    public function addAttachment(NoteAttachment $attachment): self
+    {
+        if (!$this->attachments->contains($attachment)) {
+            $this->attachments->add($attachment);
+        }
 
         return $this;
     }

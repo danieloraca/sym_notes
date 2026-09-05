@@ -1,6 +1,19 @@
 {{ form_start(form, {attr: {class: 'note-form'}}) }}
     {{ form_row(form.title) }}
+    {{ form_row(form.folder) }}
     {{ form_row(form.content) }}
+    <div class="attachment-field">
+        {{ form_label(form.attachments) }}
+        <div class="attachment-picker">
+            {{ form_widget(form.attachments) }}
+            <span class="attachment-picker-copy">
+                <strong>Add files</strong>
+                <span>Select one or more attachments</span>
+            </span>
+        </div>
+        {{ form_help(form.attachments) }}
+        {{ form_errors(form.attachments) }}
+    </div>
     {{ form_row(form.isPinned) }}
 
     <div class="form-actions">

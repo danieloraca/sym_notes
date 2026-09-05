@@ -27,6 +27,26 @@
                 {{ note.content|markdown_to_html }}
             </div>
 
+            {% if note.attachments|length > 0 %}
+                <section class="attachments" aria-labelledby="attachments-title">
+                    <div class="attachments-heading">
+                        <p class="eyebrow">Files</p>
+                        <h2 id="attachments-title">Attachments</h2>
+                    </div>
+                    <ul class="attachment-list">
+                        {% for attachment in note.attachments %}
+                            <li>
+                                <div>
+                                    <strong>{{ attachment.originalName }}</strong>
+                                    <span>{{ (attachment.size / 1024)|number_format(1) }} KB · {{ attachment.mimeType }}</span>
+                                </div>
+                                <a class="button button-secondary" href="{{ path('notes_attachment_download', {id: attachment.id}) }}">Download</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+
             <form class="delete-form" method="post" action="{{ path('notes_delete', {id: note.id}) }}" onsubmit="return confirm('Delete this note?');">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete-note-' ~ note.id) }}">
                 <button class="button button-danger" type="submit">Delete Note</button>
